@@ -34,7 +34,7 @@ public class Game {
 	public static void main(String[] args) {
 		Scanner sc = new Scanner(System.in);
 		boolean running = true;
-		System.out.println("This is Java Checkers by Christopher Pak & Joe Hur");
+		System.out.println("This is Java Hello world Checkers by Christopher Pak & Joe Hur");
 		System.out.println("Choose your game: ");
 		System.out.println(" 1. Small 4x4 Checkers \n OR \n 2. Big 8x8 Checkers");
 		int gameSize = sc.nextInt();
