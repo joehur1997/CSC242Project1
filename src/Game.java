@@ -32,6 +32,7 @@ public class Game {
 
 	}
 	public static void main(String[] args) {
+		System.out.println("hello world");
 		Scanner sc = new Scanner(System.in);
 		boolean running = true;
 		System.out.println("This is Java Hello world Checkers by Christopher Pak & Joe Hur");
