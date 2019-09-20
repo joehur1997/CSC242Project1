@@ -5,56 +5,69 @@ public class Board {
 	int turn = 0;
 	boolean running = true;
 	
-	public Board(int n) {
-		if(n == 1) {
-			represent = new char[10][10];
-			//character representation for board setup
-			for(int i = 0; i < represent.length; i++) {
-				for(int j = 0; j < represent.length; j++) {
-					if(i == 0) {
-						if(j >= 1 && j%2 == 0) {
-							//							System.out.print((j/2));
-							represent[i][j] = Character.forDigit((j/2), 10);
-						}
-						else {
-							//							System.out.print(" ");
-							represent[i][j] = ('\0');
-						}
+	public Board(int size) {
+		int rep=10;
+		if (size==1) {
+			rep=10;
+		} else if (size==2) {
+			rep=18;
+		}
+		represent = new char[rep][rep];
+		//character representation for board setup
+		for(int i = 0; i < represent.length; i++) {
+			for(int j = 0; j < represent.length; j++) {
+				if(i == 0) {
+					if(j >= 1 && j%2 == 0) {
+						//							System.out.print((j/2));
+						represent[i][j] = Character.forDigit((j/2), rep);
 					}
-					if(i >= 1 &&  i%2 != 0) {
-
-						if(j%2 == 0 && j > 1) {
-							//							System.out.print("-");
-							represent[i][j] = '-';
-
-						}
-						else if (j%2 != 0 && j >=  1) {
-							//							System.out.print("+");
-							represent[i][j] = '+';
-						}
-						else {
-							//							System.out.print(" ");
-							represent[i][j] = ' ';
-						}
-					}
-					if(i >= 1 && i%2 == 0) {
-						if(j%2 != 0) {
-							//							System.out.print("|");
-							represent[i][j] = '|';
-						}
-						if(j%2 == 0 && j == 0) {
-							char[] letters = {'A', 'B', 'C', 'D'};
-							//							System.out.print(letters[(i-2)/2]);
-							represent[i][j] = letters[(i-2)/2];
-						}
-						if(j%2 == 0 && j > 0) {
-							//							System.out.print(" ");
-							represent[i][j] = ' ';
-						}
+					else {
+						//							System.out.print(" ");
+						represent[i][j] = ('\0');
 					}
 				}
-				//				System.out.println("");
+				if(i >= 1 &&  i%2 != 0) {
+
+					if(j%2 == 0 && j > 1) {
+						//							System.out.print("-");
+						represent[i][j] = '-';
+
+					}
+					else if (j%2 != 0 && j >=  1) {
+						//							System.out.print("+");
+						represent[i][j] = '+';
+					}
+					else {
+						//							System.out.print(" ");
+						represent[i][j] = ' ';
+					}
+				}
+				if(i >= 1 && i%2 == 0) {
+					if(j%2 != 0) {
+						//							System.out.print("|");
+						represent[i][j] = '|';
+					}
+					if(j%2 == 0 && j == 0) {
+						if (size==1) {
+							char[] letters = {'A', 'B', 'C', 'D'};
+							//						System.out.print(letters[(i-2)/2]);
+							represent[i][j] = letters[(i-2)/2];
+						} else if (size==2) {
+							char[] letters = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
+							//						System.out.print(letters[(i-2)/2]);
+							represent[i][j] = letters[(i-2)/2];
+						}
+					}
+					if(j%2 == 0 && j > 0) {
+						//							System.out.print(" ");
+						represent[i][j] = ' ';
+					}
+				}
 			}
+			//				System.out.println("");
+		}
+		switch (size) {
+		case 1:
 			gameBoard = new Piece[4][4];
 			for(int i = 0; i < gameBoard.length; i++) {
 				for(int j = 0; j < gameBoard.length; j++) {
@@ -70,58 +83,7 @@ public class Board {
 			for(int j = 0; j < gameBoard.length; j+=2) {
 				gameBoard[3][j] = new Piece('p','w',8,j);
 			}
-		}
-		
-		//8 x 8 board code here *********************************************************************
-		if(n == 2) {
-			represent = new char[18][18];
-			//character representation for board setup
-			for(int i = 0; i < represent.length; i++) {
-				for(int j = 0; j < represent.length; j++) {
-					if(i == 0) {
-						if(j >= 1 && j%2 == 0) {
-							//							System.out.print((j/2));
-							represent[i][j] = Character.forDigit((j/2), 18);
-						}
-						else {
-							//							System.out.print(" ");
-							represent[i][j] = ('\0');
-						}
-					}
-					if(i >= 1 &&  i%2 != 0) {
-
-						if(j%2 == 0 && j > 1) {
-							//							System.out.print("-");
-							represent[i][j] = '-';
-
-						}
-						else if (j%2 != 0 && j >=  1) {
-							//							System.out.print("+");
-							represent[i][j] = '+';
-						}
-						else {
-							//							System.out.print(" ");
-							represent[i][j] = ' ';
-						}
-					}
-					if(i >= 1 && i%2 == 0) {
-						if(j%2 != 0) {
-							//							System.out.print("|");
-							represent[i][j] = '|';
-						}
-						if(j%2 == 0 && j == 0) {
-							char[] letters = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
-							//							System.out.print(letters[(i-2)/2]);
-							represent[i][j] = letters[(i-2)/2];
-						}
-						if(j%2 == 0 && j > 0) {
-							//							System.out.print(" ");
-							represent[i][j] = ' ';
-						}
-					}
-				}
-				//				System.out.println("");
-			}
+		case 2:
 			gameBoard = new Piece[8][8];
 			for(int i = 0; i < gameBoard.length; i++) {
 				for(int j = 0; j < gameBoard.length; j++) {
@@ -131,18 +93,20 @@ public class Board {
 			//init for pieces
 			//black
 			for(int j = 1; j < gameBoard.length; j+=2) {
-				gameBoard[0][j] = new Piece('p','w',2,j);
-				gameBoard[1][j-1] = new Piece('p','w',2,j);
-				gameBoard[2][j] = new Piece('p','w',2,j);
+				gameBoard[0][j] = new Piece('p','b',2,j);
+				gameBoard[1][j-1] = new Piece('p','b',2,j);
+				gameBoard[2][j] = new Piece('p','b',2,j);
 			}
 			//white
 			for(int j = 0; j < gameBoard.length; j+=2) {
-				gameBoard[5][j] = new Piece('p','b',8,j);
-				gameBoard[6][j+1] = new Piece('p','b',8,j);
-				gameBoard[7][j] = new Piece('p','b',8,j);
+				gameBoard[5][j] = new Piece('p','w',8,j);
+				gameBoard[6][j+1] = new Piece('p','w',8,j);
+				gameBoard[7][j] = new Piece('p','w',8,j);
 			}
 		}
+		
 	}
+	
 	public void movePiece(Piece moved, String newPos) {
 		int tempX = moved.x;
 		int tempY = moved.y;
@@ -313,7 +277,7 @@ public class Board {
 		Board board = new Board(2);
 		board.scale();
 		printArr(board.represent);
-
+		System.out.println(board.represent[2][8]); //checking tracking piece with 2d array position
 	}
 
 }
