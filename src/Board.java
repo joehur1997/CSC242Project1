@@ -6,7 +6,7 @@ public class Board {
 	boolean running = true;
 	
 	public Board(int size) {
-		int rep=10;
+		int rep=0;
 		if (size==1) {
 			rep=10;
 		} else if (size==2) {
@@ -83,6 +83,7 @@ public class Board {
 			for(int j = 0; j < gameBoard.length; j+=2) {
 				gameBoard[3][j] = new Piece('p','w',8,j);
 			}
+			break;
 		case 2:
 			gameBoard = new Piece[8][8];
 			for(int i = 0; i < gameBoard.length; i++) {
@@ -103,6 +104,7 @@ public class Board {
 				gameBoard[6][j+1] = new Piece('p','w',8,j);
 				gameBoard[7][j] = new Piece('p','w',8,j);
 			}
+			break;
 		}
 		
 	}
@@ -274,10 +276,9 @@ public class Board {
 		return false;
 	}	
 	public static void main(String[] args) {
-		Board board = new Board(2);
+		Board board = new Board(1);
 		board.scale();
 		printArr(board.represent);
-		System.out.println(board.represent[2][8]); //checking tracking piece with 2d array position
 	}
 
 }
