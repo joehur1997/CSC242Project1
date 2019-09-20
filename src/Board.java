@@ -66,6 +66,7 @@ public class Board {
 			}
 			//				System.out.println("");
 		}
+		int incx;//x pos increment for pieces
 		switch (size) {
 		case 1:
 			gameBoard = new Piece[4][4];
@@ -76,12 +77,16 @@ public class Board {
 			}
 			//init for pieces
 			//black
+			incx=0;
 			for(int j = 1; j < gameBoard.length; j+=2) {
-				gameBoard[0][j] = new Piece('p','b',2,j);
+				gameBoard[0][j] = new Piece('p','b',4+incx,2);
+				incx=incx+4;
 			}
 			//white
+			incx=0;
 			for(int j = 0; j < gameBoard.length; j+=2) {
-				gameBoard[3][j] = new Piece('p','w',8,j);
+				gameBoard[3][j] = new Piece('p','w',2+incx,8);
+				incx=incx+4;
 			}
 			break;
 		case 2:
@@ -93,164 +98,115 @@ public class Board {
 			}
 			//init for pieces
 			//black
+			incx=0;//x pos increment for pieces
 			for(int j = 1; j < gameBoard.length; j+=2) {
-				gameBoard[0][j] = new Piece('p','b',2,j);
-				gameBoard[1][j-1] = new Piece('p','b',2,j);
-				gameBoard[2][j] = new Piece('p','b',2,j);
+				gameBoard[0][j] = new Piece('p','b',4+incx,2);
+				gameBoard[1][j-1] = new Piece('p','b',2+incx,4);
+				gameBoard[2][j] = new Piece('p','b',4+incx,6);
+				incx=incx+4;
 			}
 			//white
+			incx=0;
 			for(int j = 0; j < gameBoard.length; j+=2) {
-				gameBoard[5][j] = new Piece('p','w',8,j);
-				gameBoard[6][j+1] = new Piece('p','w',8,j);
-				gameBoard[7][j] = new Piece('p','w',8,j);
+				gameBoard[5][j] = new Piece('p','w',2+incx,12);
+				gameBoard[6][j+1] = new Piece('p','w',4+incx,14);
+				gameBoard[7][j] = new Piece('p','w',2+incx,16);
+				incx=incx+4;
 			}
 			break;
-		}
-		
+		}	
 	}
 	
-	public void movePiece(Piece moved, String newPos) {
-		int tempX = moved.x;
-		int tempY = moved.y;
-		moved.update(newPos);
-		gameBoard[moved.x][moved.y] = moved;
-		gameBoard[tempX][tempY] = new Piece(tempX, tempY);
-
+	public static int[] findPiecePos(String string) {
+		int[] piecepos = {0,0,0,0}; //in order: gameboardrow, gameboardcol, representrow, representcol
+		if (string.charAt(0)=='a') {//for y (row) lookup
+			piecepos[0]=0;
+			piecepos[2]=2;
+		} else if (string.charAt(0)=='b') {
+			piecepos[0]=1;
+			piecepos[2]=4;
+		} else if (string.charAt(0)=='c') {
+			piecepos[0]=2;
+			piecepos[2]=6;
+		} else if (string.charAt(0)=='d') {
+			piecepos[0]=3;
+			piecepos[2]=8;
+		} else if (string.charAt(0)=='e') {
+			piecepos[0]=4;
+			piecepos[2]=10;
+		} else if (string.charAt(0)=='f') {
+			piecepos[0]=5;
+			piecepos[2]=12;
+		} else if (string.charAt(0)=='g') {
+			piecepos[0]=6;
+			piecepos[2]=14;
+		} else if (string.charAt(0)=='h') {
+			piecepos[0]=7;
+			piecepos[2]=16;
+		}
+		
+		if (string.charAt(1)=='1') { //for x (column) lookup
+			piecepos[1]=0;
+			piecepos[3]=2;
+		} else if (string.charAt(1)=='2') {
+			piecepos[1]=1;
+			piecepos[3]=4;
+		} else if (string.charAt(1)=='3') {
+			piecepos[1]=2;
+			piecepos[3]=6;
+		} else if (string.charAt(1)=='4') {
+			piecepos[1]=3;
+			piecepos[3]=8;
+		} else if (string.charAt(1)=='5') {
+			piecepos[1]=4;
+			piecepos[3]=10;
+		} else if (string.charAt(1)=='6') {
+			piecepos[1]=5;
+			piecepos[3]=12;
+		} else if (string.charAt(1)=='7') {
+			piecepos[1]=6;
+			piecepos[3]=14;
+		} else if (string.charAt(1)=='8') {
+			piecepos[1]=7;
+			piecepos[3]=16;
+		}
+		
+		return piecepos;
 	}
+	
+	public static void movePiece(String move, Board board) {
+		System.out.println("Making move: " + move);
+		String[] moveinfo = move.split("-");
+		String src = moveinfo[0];
+		int[] srcpositions = findPiecePos(src);
+		
+		char color = board.gameBoard[srcpositions[0]][srcpositions[1]].getColor(); //gets original color
+		String dest = moveinfo[1];
+		int[] destpositions = findPiecePos(dest);
+
+		if (!board.gameBoard[srcpositions[0]][srcpositions[1]].isEmpty) {
+			if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) {
+				board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+				board.gameBoard[destpositions[0]][destpositions[1]].updatePiece();
+				board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]); //make sure rows (Y) come first
+				board.represent[srcpositions[2]][srcpositions[3]]=' ';
+				board.represent[destpositions[2]][destpositions[3]]=color;
+			} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
+				System.out.println("You already have a piece there!");
+			}
+		} else {
+			System.out.println("No piece in that location!");
+		}
+	}
+	
 	public void scale() {
 		for(int i = 0; i < gameBoard.length; i++) {
 			for(int j = 0; j < gameBoard.length; j++) {
-				represent[2*i+2][2*j+2] = gameBoard[i][j].name;
+				represent[2*i+2][2*j+2] = gameBoard[i][j].color;
 			}
 		}
 	}
-	//method for both determining legal and out of bounds moves
-
-	public boolean legalMove(String move, Piece piece) {
-		boolean legal = false;
-		char[] vert = {'a','b','c','d'};
-		int x = Character.digit(move.charAt(1), 10);
-		int y = getIndex(vert, move.charAt(1));
-		if((x > gameBoard.length || x < 0) || (y > gameBoard.length || y < 0 )) {
-			legal = true;
-		}
-		if((x < gameBoard.length || x > 0) || (y < gameBoard.length || y > 0 )) {
-			for(String moves: piece.avalMoves) {
-				if(moves.equalsIgnoreCase(move)) {
-
-					legal = true;
-				}
-			}
-		}
-		return legal;
-	}
-	public void capture(Piece piece, Piece other){
-		if(piece.name == 'b') {
-			for(String moves: piece.avalMoves) {
-				int x = Character.digit(moves.charAt(1),10);
-				int y = getIndex(vertical, moves.charAt(0));
-				if(!isEmpty(y,x) && other.name != piece.name) {
-					if(piece.x > other.x && other.x > 0) {
-						for(String delMoves: piece.avalMoves) {
-							piece.avalMoves.remove(delMoves);
-						}
-						piece.avalMoves.add((vertical[piece.y+2])+ "" + (piece.x + 2));
-					}
-					if(piece.x < other.x && other.x < gameBoard.length-1) {
-						for(String delMoves: piece.avalMoves) {
-							piece.avalMoves.remove(delMoves);
-						}
-						piece.avalMoves.add((vertical[piece.y+2])+ "" + (piece.x - 2));
-					}
-				}
-				else {
-					return;
-				}
-			}
-		}
-		if(piece.name == 'w') {
-			for(String moves: piece.avalMoves) {
-				int x = Character.digit(moves.charAt(1),10);
-				int y = getIndex(vertical, moves.charAt(0));
-				if(!isEmpty(y,x) && other.name != piece.name) {
-					if(piece.x > other.x && other.x > 0) {
-						for(String delMoves: piece.avalMoves) {
-							piece.avalMoves.remove(delMoves);
-					
-						}
-						if(isEmpty(y,x)) {
-
-							piece.avalMoves.add((vertical[piece.y+2])+ "" + (piece.x + 2));
-						}
-					}
-					if(piece.x < other.x && other.x < gameBoard.length-1) {
-						for(String delMoves: piece.avalMoves) {
-							piece.avalMoves.remove(delMoves);
-						}
-						piece.avalMoves.add((vertical[piece.y+2])+ "" + (piece.x - 2));
-					}
-				}
-				else {
-					return;
-				}
-			}
-		}
-	}
-	public boolean isCapturable(Piece piece, Piece capture) {
-		boolean capturable = false;
-		if(piece.role == 'p') {
-			if(piece.name == 'b' ) {
-				for(String moves: piece.avalMoves) {
-					int x = Character.digit(moves.charAt(1),10);
-					int y = getIndex(vertical, moves.charAt(0));
-					if(!isEmpty(y,x) && capture.name != piece.name) {
-						if(piece.x < capture.x && capture.x > 0 && capture.y < 3 && capture.y > 0) {
-							if(isEmpty(capture.y+1,capture.x-1)) {
-								piece.captures.add(vertical[capture.y+1] + "" + (capture.x+1));
-								
-								capturable =  true;
-							}
-						}
-						if(piece.x > capture.x && capture.x < gameBoard.length-1 && capture.y < 3 && capture.y > 0) {
-							if(isEmpty(capture.y+1, capture.x -1)) {
-								piece.captures.add(vertical[capture.y+1] + "" + (capture.x-1));
-								capturable = true; 
-							}
-						}
-
-						else {
-							continue;
-						}
-					}
-				}
-			}
-			if(piece.name == 'w' ) {
-				for(String moves: piece.avalMoves) {
-					int x = Character.digit(moves.charAt(1),10);
-					int y = getIndex(vertical, moves.charAt(0));
-					if(!isEmpty(y,x) && capture.name != piece.name) {
-						if(piece.x < capture.x && capture.x > 0 && capture.y < 3 && capture.y > 0) {
-							if(isEmpty(capture.y-1,capture.x+1)) {
-								piece.captures.add(vertical[capture.y-1] + "" + (capture.x-1));
-								capturable =  true;
-							}
-						}
-						if(piece.x > capture.x && capture.x < gameBoard.length-1 && capture.y < 3 && capture.y > 0) {
-							if(isEmpty(capture.y-1, capture.x-1)) {
-								piece.captures.add(vertical[capture.y-1] + "" + (capture.x-1));
-								capturable = true; 
-							}
-						}
-
-						else {
-							continue;
-						}
-					}
-				}
-			}
-		}
-		return capturable;
-	}
+	
 	public static int getIndex(char[] arr, char word) {
 		int sol = -1;
 		for(int i = 0; i < arr.length; i++) {
@@ -269,8 +225,9 @@ public class Board {
 			System.out.println("");
 		}
 	}
+	
 	public boolean isEmpty(int col, int row) {
-		if (gameBoard[col][row].name == '\0') {
+		if (gameBoard[col][row].color == '\0') {
 			return true;
 		}
 		return false;
@@ -279,6 +236,24 @@ public class Board {
 		Board board = new Board(1);
 		board.scale();
 		printArr(board.represent);
+		String testmove="a2-b1";
+		movePiece(testmove, board);
+		printArr(board.represent);
+		testmove="d1-c2";
+		movePiece(testmove, board);
+		printArr(board.represent);
+		testmove="a2-b1";
+		movePiece(testmove, board);
+		printArr(board.represent);
+		
+		//System.out.println("start position:"); 
+		//System.out.println("Empty? : " + board.gameBoard[3][0].isEmpty); //testing getting piece info
+		//System.out.println(board.gameBoard[3][0].getY() + " " + board.gameBoard[3][0].getX());
+		//System.out.println(board.represent[8][2]); //tracking piece position on 2d array
+		//System.out.println("new position:"); 
+		//System.out.println("Empty? : " + board.gameBoard[2][1].isEmpty); //testing getting piece info
+		//System.out.println(board.gameBoard[2][1].getY() + " " + board.gameBoard[2][1].getX());
+		//System.out.println(board.represent[6][4]); //tracking piece position on 2d array
 	}
 
 }

@@ -1,100 +1,88 @@
 import java.util.ArrayList;
 
 public class Piece {
-
-	char role = 'p';
-	char name;
-	ArrayList<String> captures;
-	ArrayList<String> avalMoves;
-	String pos;
+	char role;
+	char color;
 	int x;
 	int y;
-
-	public Piece(char role, char name, int x, int y) {
-		//four by four, will need better methods to do this task, but want to code in a way that makes sense right off the bat
-		this.name = name;
+	int[] position = {x,y};
+	boolean isEmpty;
+	
+	public Piece (char role, char color, int x, int y) {
+		this.role = role;
+		this.color = color;
 		this.x = x;
 		this.y = y;
-		
-
+		position[0]=x;
+		position[1]=y;
+		isEmpty=false;
 	}
-	public Piece(int x, int y) {
-		this.name = '\0';
+	
+	public Piece (int x, int y) {
 		this.x = x;
 		this.y = y;
-		role = '\0';
-		this.avalMoves = null;
+		position[0]=x;
+		position[1]=y;
+		isEmpty=true;
 	}
+	
+	public void setRole(char role) {
+		this.role = role;
+	}
+	
+	public void setColor(char color) {
+		this.color=color;
+	}
+	
 	public void setX(int x) {
 		this.x = x;
+		position[0]=x;
 	}
+	
 	public void setY(int y) {
-		this.y = y;
+		this.y=y;
+		position[1]=y;
 	}
-	public char getName() {
-		return name;
+	
+	public void setAbsPosition(int x, int y) {
+		this.x=x;
+		this.y=y;
+		position[0]=x;
+		position[1]=y;
 	}
-	public String getPos() {
-		char[] vert = {'a','b','c','d'};
-
-		return vert[y] + "" + x;
+	
+	public void setIsEmpty(boolean isEmpty) {
+		this.isEmpty=isEmpty;
 	}
-	public void getMoves() {
-		char[] vert = {'a','b','c','d'};
-		if(role == 'p' || role == 'k') {
-			if(name == 'b') {
-				// not edge case moves.
-				if(x > 0 && x < 4) {
-					if(y > 0 && y < 4) {
-						avalMoves.add(vert[(y+1)] + "" + (x+1));
-						avalMoves.add(vert[(y+1)] + "" + (x-1));
-					}
-				}
-				//edge moves
-				if(x == 0) {
-					avalMoves.add(vert[(y+1)] + "" + (x+1));
-				}
-				if(x == 3) {
-					avalMoves.add(vert[(y+1)] + "" + (x-1));
-				}
-			}	
-			if(name == 'w') {
-				if(x > 0 && x < 4) {
-					if(y > 0 && y < 4) {
-						avalMoves.add(vert[(y-1)] + ":" + (x+1));
-						avalMoves.add(vert[(y-1)] + ":" + (x-1));
-					}
-				}
-				//edge moves
-				if(x == 0) {
-					avalMoves.add(vert[(y-1)] + ":" + (x+1));
-				}
-				if(x == 3) {
-					avalMoves.add(vert[(y-1)] + ":" + (x-1));
-				}
-			}
-		}
+	
+	public char getRole() {
+		return role;
 	}
-	public void update(String pos) {
-		char[] vert = {'a','b','c','d'};
-		int newX = Character.getNumericValue(pos.charAt(1));
-		int newY = getIndex(vert, pos.charAt(0));
-		setX(newX);
-		setY(newY);
-		System.out.println(getPos());
+	
+	public char getColor() {
+		return color;
 	}
-
-	public static int getIndex(char[] arr, char word) {
-		int sol = -1;
-		for(int i = 0; i < arr.length; i++) {
-			if(word == arr[i]) {
-				sol = i;
-			}
-		}
-		return sol;
-
+	
+	public int getX() {
+		return x;
 	}
-	public static void main(String[] args) {
-
+	
+	public int getY() {
+		return y;
+	}
+	
+	public int[] getPosition() {
+		return position;
+	}
+	
+	public void clearPiece() {
+		role='\0';
+		color='\0';
+		this.isEmpty=true;
+	}
+	
+	public void updatePiece() {
+		this.setIsEmpty(false);
+		this.role='p';
 	}
 }
