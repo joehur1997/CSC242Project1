@@ -49,7 +49,9 @@ public class Node {
 	public void minimax(Piece[][] state) {
 		
 	}
-	public void hminimax()
+	public void hminimax() {
+		
+	}
 	public static void main(String[] args) {
 		
 	}

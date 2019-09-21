@@ -6,7 +6,7 @@ public class Board {
 	char[][] represent;
 	int size;
 	int turn = 0;
-	
+
 	public Board(int size) {
 		int rep=0;
 		if (size==1) {
@@ -120,7 +120,7 @@ public class Board {
 			break;
 		}	
 	}
-	
+
 	public static int[] findPiecePos(String string) {
 		int[] piecepos = {0,0,0,0}; //in order: gameboardrow, gameboardcol, representrow, representcol
 		if (string.charAt(0)=='a') {//for y (row) lookup
@@ -148,7 +148,7 @@ public class Board {
 			piecepos[0]=7;
 			piecepos[2]=16;
 		}
-		
+
 		if (string.charAt(1)=='1') { //for x (column) lookup
 			piecepos[1]=0;
 			piecepos[3]=2;
@@ -174,10 +174,10 @@ public class Board {
 			piecepos[1]=7;
 			piecepos[3]=16;
 		}
-		
+
 		return piecepos;
 	}
-	
+
 	public static boolean isValidDest (String pos) {
 		if ((pos.charAt(0)=='a'||pos.charAt(0)=='c'||pos.charAt(0)=='e'||pos.charAt(0)=='g')&& (Character.getNumericValue(pos.charAt(1))%2!=0)) {
 			System.out.println("INVALID MOVE: Can only move pieces diagonally!");
@@ -189,7 +189,7 @@ public class Board {
 			return true;
 		}
 	}
-	
+
 	public static boolean isValidInput (String pos, Board board) {
 		boolean isValid=true;
 		char letter = pos.charAt(0);
@@ -215,6 +215,64 @@ public class Board {
 		}
 		return isValid;
 	}
+	//strictly for avalmoves in piece.java
+	//captures exclusive
+	public void getMoves(String pos) {
+		char yCoor = pos.charAt(0);
+		int y = getIndex(vertical, yCoor);
+		int x = Character.digit(pos.charAt(1), 10);
+		if(isEmpty(y,x)) {
+			return;
+		}
+		//hardcode to add moves
+		if(!isEmpty(y,x)) {
+			if(gameBoard[y][x].role == 'p') {
+				if(gameBoard[y][x].color == 'b') {
+					//edge
+					if(x == 0) {
+						if(isEmpty(y+1,x+1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x+1));
+						}
+					}
+					if(x == gameBoard.length) {
+						if(isEmpty(y+1,x-1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x-1));
+						}
+					}
+					if(x > 0 && x < gameBoard.length) {
+						if(isEmpty(y+1,x-1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x-1));
+						}
+						if(isEmpty(y+1,x+1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x+1));
+						}
+					}
+				}
+				if(gameBoard[y][x].color == 'w') {
+					//edge
+					if(x == 0) {
+						if(isEmpty(y-1,x+1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x+1));
+						}
+					}
+					if(x == gameBoard.length) {
+						if(isEmpty(y-1,x-1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x-1));
+						}
+					}
+					if(x > 0 && x < gameBoard.length) {
+						if(isEmpty(y-1,x-1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x-1));
+						}
+						if(isEmpty(y-1,x+1)) {
+							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x+1));
+						}
+					}
+				}
+			}
+		}
+	}
+
 
 	//sorry, but some feedback on this method:
 	//this method does the job in terms of moving the piece but coding the tree and capture mechanic gets really hard. We need to be able to see states ahead.
@@ -227,10 +285,10 @@ public class Board {
 			return;
 		}
 		int[] srcpositions = findPiecePos(src);
-		
+
 		char color = board.gameBoard[srcpositions[0]][srcpositions[1]].getColor(); //gets original color
 		System.out.println(board.gameBoard[srcpositions[0]][srcpositions[1]].getY() + " " + board.gameBoard[srcpositions[0]][srcpositions[1]].getX() + " " + color);
-		
+
 		String dest = moveinfo[1];
 		if (!isValidInput(dest, board)) {
 			return;
@@ -257,7 +315,7 @@ public class Board {
 					System.out.println("INVALID MOVE: You already have a piece at " + dest + "!");
 				}
 			} else if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='k') { //logic if piece is king
-				
+
 			}
 		} else {
 			System.out.println("INVALID MOVE: There is no piece at " + src + "!");
@@ -269,7 +327,7 @@ public class Board {
 		movePiece(move, next);
 		return next.gameBoard;
 	}
-	
+
 	public void scale() {
 		for(int i = 0; i < gameBoard.length; i++) {
 			for(int j = 0; j < gameBoard.length; j++) {
@@ -277,7 +335,7 @@ public class Board {
 			}
 		}
 	}
-	
+
 	public static int getIndex(char[] arr, char word) {
 		int sol = -1;
 		for(int i = 0; i < arr.length; i++) {
@@ -296,7 +354,7 @@ public class Board {
 			System.out.println("");
 		}
 	}
-	
+
 	public boolean isEmpty(int col, int row) {
 		if (gameBoard[col][row].color == '\0') {
 			return true;
@@ -307,11 +365,11 @@ public class Board {
 		Board board = new Board(1);
 		board.scale();
 		printArr(board.represent);
-		
+
 		Scanner sc = new Scanner(System.in);
 		String move = sc.nextLine();
 		System.out.println(move);
-		
+
 		String testmove="a2-b1";
 		movePiece(testmove, board);
 		printArr(board.represent);
@@ -319,12 +377,11 @@ public class Board {
 		testmove="d1-b3";
 		movePiece(testmove, board);
 		printArr(board.represent);
-		
+
 		testmove="b1-a2";
 		movePiece(testmove, board);
 		printArr(board.represent);
 
-		
 		//System.out.println("start position:"); 
 		//System.out.println("Empty? : " + board.gameBoard[3][0].isEmpty); //testing getting piece info
 		//System.out.println(board.gameBoard[3][0].getY() + " " + board.gameBoard[3][0].getX());
