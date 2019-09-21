@@ -5,6 +5,7 @@ public class Board {
 	Piece[][] gameBoard;
 	char[][] represent;
 	int size;
+	int turn = 0;
 	
 	public Board(int size) {
 		int rep=0;
@@ -215,7 +216,9 @@ public class Board {
 		return isValid;
 	}
 
-	
+	//sorry, but some feedback on this method:
+	//this method does the job in terms of moving the piece but coding the tree and capture mechanic gets really hard. We need to be able to see states ahead.
+	//Ama try to work around this b/c i like the method, but this is just a just in case, to remind both me and you :)
 	public static void movePiece(String move, Board board) {
 		System.out.println("Making move: " + move);
 		String[] moveinfo = move.split("-");
@@ -259,6 +262,12 @@ public class Board {
 		} else {
 			System.out.println("INVALID MOVE: There is no piece at " + src + "!");
 		}
+	}
+	//this is the workaround im starting on: we can keep the next state intact, but idk what it does yet.
+	public Piece[][] futureState(String move, Board board){
+		Board next = board;
+		movePiece(move, next);
+		return next.gameBoard;
 	}
 	
 	public void scale() {

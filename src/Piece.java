@@ -7,6 +7,7 @@ public class Piece {
 	int y;
 	int[] position = {x,y};
 	boolean isEmpty;
+	String[] avalMoves;
 	
 	public Piece (char role, char color, int x, int y) {
 		this.role = role;
