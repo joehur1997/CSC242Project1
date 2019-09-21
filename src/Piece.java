@@ -10,6 +10,7 @@ public class Piece {
 	ArrayList<String> avalMoves;
 	
 	public Piece (char role, char color, int x, int y) {
+		avalMoves = new ArrayList<String>();
 		this.role = role;
 		this.color = color;
 		this.x = x;

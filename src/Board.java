@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Board {
@@ -217,10 +218,13 @@ public class Board {
 	}
 	//strictly for avalmoves in piece.java
 	//captures exclusive
+	//need help :(
 	public void getMoves(String pos) {
 		char yCoor = pos.charAt(0);
 		int y = getIndex(vertical, yCoor);
-		int x = Character.digit(pos.charAt(1), 10);
+		int x = Character.digit(pos.charAt(1), 10) - 1;
+		Piece temp =gameBoard[y][x];
+		temp.avalMoves.add(pos);
 		if(isEmpty(y,x)) {
 			return;
 		}
@@ -231,20 +235,20 @@ public class Board {
 					//edge
 					if(x == 0) {
 						if(isEmpty(y+1,x+1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x+1));
+							temp.avalMoves.add(vertical[y+1] + "" + (x+1));
 						}
 					}
 					if(x == gameBoard.length) {
 						if(isEmpty(y+1,x-1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x-1));
+							temp.avalMoves.add(vertical[y+1] + "" + (x-1));
 						}
 					}
 					if(x > 0 && x < gameBoard.length) {
 						if(isEmpty(y+1,x-1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x-1));
+							temp.avalMoves.add(vertical[y+1] + "" + (x-1));
 						}
 						if(isEmpty(y+1,x+1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y+1] + "" + (x+1));
+							temp.avalMoves.add(vertical[y+1] + "" + (x+1));
 						}
 					}
 				}
@@ -252,31 +256,33 @@ public class Board {
 					//edge
 					if(x == 0) {
 						if(isEmpty(y-1,x+1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x+1));
+							temp.avalMoves.add(vertical[y-1] + "" + (x+1));
 						}
 					}
 					if(x == gameBoard.length) {
 						if(isEmpty(y-1,x-1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x-1));
+							temp.avalMoves.add(vertical[y-1] + "" + (x-1));
 						}
 					}
 					if(x > 0 && x < gameBoard.length) {
 						if(isEmpty(y-1,x-1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x-1));
+							temp.avalMoves.add(vertical[y-1] + "" + (x-1));
 						}
 						if(isEmpty(y-1,x+1)) {
-							gameBoard[y][x].avalMoves.add(vertical[y-1] + "" + (x+1));
+							temp.avalMoves.add(vertical[y-1] + "" + (x+1));
 						}
 					}
 				}
 			}
 		}
+		gameBoard[y][x].avalMoves = temp.avalMoves;
 	}
 
 
 	//sorry, but some feedback on this method:
 	//this method does the job in terms of moving the piece but coding the tree and capture mechanic gets really hard. We need to be able to see states ahead.
 	//Ama try to work around this b/c i like the method, but this is just a just in case, to remind both me and you :)
+	//i think i fixed it. idk yet tho
 	public static void movePiece(String move, Board board) {
 		System.out.println("Making move: " + move);
 		String[] moveinfo = move.split("-");
@@ -381,6 +387,15 @@ public class Board {
 		testmove="b1-a2";
 		movePiece(testmove, board);
 		printArr(board.represent);
+		
+		board.getMoves("d4");
+		System.out.println("test");
+		System.out.println(board.gameBoard[0][3].color);
+		System.out.println(board.gameBoard[0][3].avalMoves.size());
+		for(String moves: board.gameBoard[0][3].avalMoves) {
+			System.out.println(moves);
+			System.out.println("anything");
+		}
 
 		//System.out.println("start position:"); 
 		//System.out.println("Empty? : " + board.gameBoard[3][0].isEmpty); //testing getting piece info
