@@ -179,6 +179,47 @@ public class Board {
 		return piecepos;
 	}
 
+	//see if game can still run
+	public boolean check() {
+		boolean canRun = true;
+		//case where there are no pieces that are white or black
+		boolean noWhite = false;
+		boolean noBlack = false;
+		for(Piece[] rows: gameBoard) {
+			for(Piece pieces: rows) {
+				//if theres a single piece that has white color
+				if(pieces.color == 'w') {
+					noWhite = true;
+				}
+				if(pieces.color == 'b') {
+					noBlack = true;
+				}
+				
+			}			
+		}
+		boolean noPiece = noWhite || noBlack;
+		//case for availible moves
+		boolean BcanMove = false;
+		boolean WcanMove = false;
+		for(Piece[] rows: gameBoard) {
+			for(Piece pieces: rows) {
+				while(pieces.color == 'b') {
+					if(!pieces.avalMoves.isEmpty()) {
+						BcanMove = true;
+					}
+				}
+				while(pieces.color == 'w') {
+					if(!pieces.avalMoves.isEmpty()) {
+						WcanMove = true;
+					}
+				}
+			}
+		}
+		boolean noMoves = WcanMove || BcanMove;
+		canRun = noMoves || noPiece;
+		return canRun;
+	}
+	
 	public static boolean isValidDest (String pos) {
 		if ((pos.charAt(0)=='a'||pos.charAt(0)=='c'||pos.charAt(0)=='e'||pos.charAt(0)=='g')&& (Character.getNumericValue(pos.charAt(1))%2!=0)) {
 			System.out.println("INVALID MOVE: Can only move pieces diagonally!");
@@ -190,6 +231,8 @@ public class Board {
 			return true;
 		}
 	}
+	
+	
 
 	public static boolean isValidInput (String pos, Board board) {
 		boolean isValid=true;
@@ -225,6 +268,7 @@ public class Board {
 		int x = Character.digit(pos.charAt(1), 10) - 1;
 		Piece temp =gameBoard[y][x];
 		temp.avalMoves.add(pos);
+		
 		if(isEmpty(y,x)) {
 			return;
 		}
@@ -333,7 +377,8 @@ public class Board {
 		movePiece(move, next);
 		return next.gameBoard;
 	}
-
+	
+	
 	public void scale() {
 		for(int i = 0; i < gameBoard.length; i++) {
 			for(int j = 0; j < gameBoard.length; j++) {
@@ -390,7 +435,6 @@ public class Board {
 		
 		board.getMoves("d4");
 		System.out.println("test");
-		System.out.println(board.gameBoard[0][3].color);
 		System.out.println(board.gameBoard[0][3].avalMoves.size());
 		for(String moves: board.gameBoard[0][3].avalMoves) {
 			System.out.println(moves);

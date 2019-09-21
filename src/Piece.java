@@ -26,6 +26,7 @@ public class Piece {
 		position[0]=x;
 		position[1]=y;
 		isEmpty=true;
+		avalMoves = new ArrayList<String>();
 	}
 	
 	public void setRole(char role) {
