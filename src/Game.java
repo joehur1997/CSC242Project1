@@ -38,15 +38,25 @@ public class Game {
 		System.out.println("Choose your game: ");
 		System.out.println(" 1. Small 4x4 Checkers \n OR \n 2. Big 8x8 Checkers");
 		int gameSize = sc.nextInt();
+		sc.nextLine();
 		System.out.println("You picked: " + gameSize);
-		//ai stuff
+		
+		Board board = new Board(gameSize);
+		board.scale();
+		printArr(board.represent);
 
-		System.out.println("Do you want to play Black (B) or White (W) (Black goes first!!!)");
-		char playerChoice =  sc.next().charAt(0);
+		System.out.println("Type your move in src-dest format (example: a2-b1) or type quit to end the game");
+		while (running) {
+			String move = sc.nextLine();
+			if (move.equals("quit")) {
+				System.out.println("Quit Game!");
+				running=false;
+				break;
+			}
+			System.out.println(move);
+			board.movePiece(move, board);
+			printArr(board.represent);
+		}
 
-
-		Board game = new Board(gameSize);
-		game.scale();
-		printArr(game.represent);
 		}
 	}

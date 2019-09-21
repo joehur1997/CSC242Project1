@@ -81,8 +81,9 @@ public class Piece {
 		this.isEmpty=true;
 	}
 	
-	public void updatePiece() {
+	public void updatePiece(Piece piece) {
 		this.setIsEmpty(false);
-		this.role='p';
+		this.role=piece.role;
+		this.color=piece.color;
 	}
 }

@@ -1,16 +1,19 @@
+import java.util.Scanner;
+
 public class Board {
 	public static char[] vertical = {'a','b','c','d','e','f','g','h'};
 	Piece[][] gameBoard;
 	char[][] represent;
-	int turn = 0;
-	boolean running = true;
+	int size;
 	
 	public Board(int size) {
 		int rep=0;
 		if (size==1) {
 			rep=10;
+			this.size=size;
 		} else if (size==2) {
 			rep=18;
+			this.size=size;
 		}
 		represent = new char[rep][rep];
 		//character representation for board setup
@@ -174,28 +177,87 @@ public class Board {
 		return piecepos;
 	}
 	
+	public static boolean isValidDest (String pos) {
+		if ((pos.charAt(0)=='a'||pos.charAt(0)=='c'||pos.charAt(0)=='e'||pos.charAt(0)=='g')&& (Character.getNumericValue(pos.charAt(1))%2!=0)) {
+			System.out.println("INVALID MOVE: Can only move pieces diagonally!");
+			return false;
+		} else if ((pos.charAt(0)=='b'||pos.charAt(0)=='d'||pos.charAt(0)=='f'||pos.charAt(0)=='h')&& (Character.getNumericValue(pos.charAt(1))%2==0)) {
+			System.out.println("INVALID MOVE: Can only move pieces diagonally!");
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public static boolean isValidInput (String pos, Board board) {
+		boolean isValid=true;
+		char letter = pos.charAt(0);
+		int num = Character.getNumericValue(pos.charAt(1));
+		System.out.println(pos + " " + letter + " " + num);
+		if (board.size==1) {
+			if ((letter!='a'&& letter!='b'&&letter!='c'&&letter!='d')||num>4||num==0||pos.length()>2) {
+				System.out.println("INVALID MOVE: Move is outside of board or incorrect input!");
+				isValid=false;
+			} 
+		}
+		if (board.size==2) {
+			boolean validchar=false;
+			for (char x : vertical) {
+				if (x==letter) {
+					validchar=true;
+				}
+			}
+			if (!validchar||num>8||num==0||pos.length()>2) {
+				System.out.println("INVALID MOVE: Move is outside of board or incorrect input");
+				isValid=false;
+			}
+		}
+		return isValid;
+	}
+
+	
 	public static void movePiece(String move, Board board) {
 		System.out.println("Making move: " + move);
 		String[] moveinfo = move.split("-");
 		String src = moveinfo[0];
+		if (!isValidInput(src, board)) {
+			return;
+		}
 		int[] srcpositions = findPiecePos(src);
 		
 		char color = board.gameBoard[srcpositions[0]][srcpositions[1]].getColor(); //gets original color
+		System.out.println(board.gameBoard[srcpositions[0]][srcpositions[1]].getY() + " " + board.gameBoard[srcpositions[0]][srcpositions[1]].getX() + " " + color);
+		
 		String dest = moveinfo[1];
+		if (!isValidInput(dest, board)) {
+			return;
+		}
+		if (!isValidDest(dest)) {
+			return;
+		}
 		int[] destpositions = findPiecePos(dest);
 
 		if (!board.gameBoard[srcpositions[0]][srcpositions[1]].isEmpty) {
-			if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) {
-				board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-				board.gameBoard[destpositions[0]][destpositions[1]].updatePiece();
-				board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]); //make sure rows (Y) come first
-				board.represent[srcpositions[2]][srcpositions[3]]=' ';
-				board.represent[destpositions[2]][destpositions[3]]=color;
-			} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
-				System.out.println("You already have a piece there!");
+			if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='p') { //checks if regular piece or king
+				if ((srcpositions[0]>=destpositions[0]&&color == 'b')||destpositions[0]-srcpositions[0]>1) { //reg black can only move 1 row down (increase row)
+					System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
+				} else if ((srcpositions[0]<=destpositions[0]&&color=='w')||srcpositions[0]-destpositions[0]>1) { //reg white can only move 1 row up (decrease row)
+					System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
+				} else if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) {
+					board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+					board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+					board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
+					board.represent[srcpositions[2]][srcpositions[3]]=' ';
+					board.represent[destpositions[2]][destpositions[3]]=color;
+					System.out.println(board.gameBoard[destpositions[0]][destpositions[1]].getY() + " " + board.gameBoard[destpositions[0]][destpositions[1]].getX() + " " + color);
+				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
+					System.out.println("INVALID MOVE: You already have a piece at " + dest + "!");
+				}
+			} else if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='k') { //logic if piece is king
+				
 			}
 		} else {
-			System.out.println("No piece in that location!");
+			System.out.println("INVALID MOVE: There is no piece at " + src + "!");
 		}
 	}
 	
@@ -236,15 +298,23 @@ public class Board {
 		Board board = new Board(1);
 		board.scale();
 		printArr(board.represent);
+		
+		Scanner sc = new Scanner(System.in);
+		String move = sc.nextLine();
+		System.out.println(move);
+		
 		String testmove="a2-b1";
 		movePiece(testmove, board);
 		printArr(board.represent);
-		testmove="d1-c2";
+
+		testmove="d1-b3";
 		movePiece(testmove, board);
 		printArr(board.represent);
-		testmove="a2-b1";
+		
+		testmove="b1-a2";
 		movePiece(testmove, board);
 		printArr(board.represent);
+
 		
 		//System.out.println("start position:"); 
 		//System.out.println("Empty? : " + board.gameBoard[3][0].isEmpty); //testing getting piece info
