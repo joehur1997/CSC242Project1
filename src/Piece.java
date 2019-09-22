@@ -89,4 +89,8 @@ public class Piece {
 		this.role=piece.role;
 		this.color=piece.color;
 	}
+	
+	public void getPieceInfo() {
+		System.out.println("Empty: " + this.isEmpty + " , Color: " + this.getColor() + ", Y:" + this.y + ", X:" + this.x);
+	}
 }

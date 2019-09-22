@@ -238,7 +238,6 @@ public class Board {
 		boolean isValid=true;
 		char letter = pos.charAt(0);
 		int num = Character.getNumericValue(pos.charAt(1));
-		System.out.println(pos + " " + letter + " " + num);
 		if (board.size==1) {
 			if ((letter!='a'&& letter!='b'&&letter!='c'&&letter!='d')||num>4||num==0||pos.length()>2) {
 				System.out.println("INVALID MOVE: Move is outside of board or incorrect input!");
@@ -322,6 +321,31 @@ public class Board {
 		gameBoard[y][x].avalMoves = temp.avalMoves;
 	}
 
+	public static boolean kingPiece(Piece piece, int size) { //hehe actually decided to make a separate method for kinging
+		if (piece.color=='b') {
+			if (size==1 && piece.y==8 &&(piece.x>=2&&piece.x<=8)) {
+				piece.setRole('k');
+				System.out.println("Kinged this piece");
+				return true;
+			} else if (size==2 && piece.y==16 &&(piece.x>=2&&piece.x<=16)) {
+				piece.setRole('k');
+				System.out.println("Kinged this piece");
+				return true;
+			} else {
+				System.out.println("Not king eligible");
+				return false;
+			}
+		} else {
+			if (piece.y==2 &&(piece.x>=2&&piece.x<=16)) {
+				piece.setRole('k');
+				System.out.println("Kinged this piece");
+				return true;
+			} else {
+				System.out.println("Not king eligible");
+				return false;
+			}
+		}
+	}
 
 	//sorry, but some feedback on this method:
 	//this method does the job in terms of moving the piece but coding the tree and capture mechanic gets really hard. We need to be able to see states ahead.
@@ -354,19 +378,128 @@ public class Board {
 					System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
 				} else if ((srcpositions[0]<=destpositions[0]&&color=='w')||srcpositions[0]-destpositions[0]>1) { //reg white can only move 1 row up (decrease row)
 					System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
-				} else if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) {
+				} else if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) { //moving logic mainly here. need to clean up and maybe make separate method
 					board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
 					board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
 					board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
 					board.represent[srcpositions[2]][srcpositions[3]]=' ';
-					board.represent[destpositions[2]][destpositions[3]]=color;
-					System.out.println(board.gameBoard[destpositions[0]][destpositions[1]].getY() + " " + board.gameBoard[destpositions[0]][destpositions[1]].getX() + " " + color);
+					if (kingPiece(board.gameBoard[destpositions[0]][destpositions[1]], board.size)) {//checks if can make king and changes the visual accordingly
+						board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
+					} else {
+						board.represent[destpositions[2]][destpositions[3]]=color;
+					}
+					board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
 				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
 					System.out.println("INVALID MOVE: You already have a piece at " + dest + "!");
+					
+		//**********************logic for capturing pieces with REGULAR pieces STARTS below. yeah its messy af and needs a proper separate method later*************************
+				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color!=color) { 
+					System.out.println("Trying to capture...");
+					int rowchange=1;
+					if(color=='w') {
+						rowchange=(-1);
+						System.out.println("White is trying to capture black...");
+					} else {
+						System.out.println("Black is trying to capture white...");
+					}
+					System.out.println(srcpositions[1] + " " + destpositions[1]);
+					if (srcpositions[1]<destpositions[1]) { //compares columns to see if capturing right
+						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].isEmpty) {
+							System.out.println("Trying to capture right...");
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].setAbsPosition(destpositions[3]+2, destpositions[2]+(2*rowchange));
+							board.represent[srcpositions[2]][srcpositions[3]]=' ';
+							board.represent[destpositions[2]][destpositions[3]]=' ';
+							if (kingPiece(board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1], board.size)) {//checks if can make king and changes the visual accordingly
+								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+2]=Character.toUpperCase(color);
+							} else {
+								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+2]=color;
+							}
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].getPieceInfo();
+						} else {
+							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
+						}
+					} else if (srcpositions[1]>destpositions[1]) { //compares columns to see if capturing left
+						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].isEmpty) {
+							System.out.println("Trying to capture left...");
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].setAbsPosition(destpositions[3]-2, destpositions[2]+(2*rowchange));
+							System.out.println("Abs src position: " + srcpositions[2] + " " + srcpositions[3]);
+							board.represent[srcpositions[2]][srcpositions[3]]=' ';
+							board.represent[destpositions[2]][destpositions[3]]=' ';
+							System.out.println("Abs after cap dest position: " + (destpositions[2]+2) + " " + (destpositions[3]-(2*rowchange)));
+							if (kingPiece(board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1], board.size)) {//checks if can make king and changes the visual accordingly
+								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]-2]=Character.toUpperCase(color);
+							} else {
+								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]-2]=color;
+							}
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].getPieceInfo();
+						} else {
+							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
+						}
+					}
 				}
+		//**********************logic for capturing pieces with REGULAR pieces ENDS here. yeah its messy af and needs a proper separate method later***************************
+				
 			} else if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='k') { //logic if piece is king
+				if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) { //moving logic mainly here. need to clean up and maybe make separate method
+					board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+					board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+					board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
+					board.represent[srcpositions[2]][srcpositions[3]]=' ';
+					board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
+					board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
+					System.out.println("INVALID MOVE: You already have a piece at " + dest + "!");
+					
+		//**********************logic for capturing pieces with KING pieces STARTS below. yeah its messy af and needs a proper separate method later*************************
+				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color!=color) { 
+					System.out.println("Trying to capture...");
+					int rowchange=1;
+					if (color=='w' && (srcpositions[0]>destpositions[0]) ) {
+						rowchange = -1;
+					} else if (color=='b' && (srcpositions[0]>destpositions[0])) {
+						rowchange = -1;
+					}
 
-			}
+					System.out.println(srcpositions[1] + " " + destpositions[1]);
+					if (srcpositions[1]<destpositions[1]) { //compares columns to see if capturing right
+						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].isEmpty) {
+							System.out.println("Trying to capture right...");
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].setAbsPosition(destpositions[3]+2, destpositions[2]+(2*rowchange));
+							board.represent[srcpositions[2]][srcpositions[3]]=' ';
+							board.represent[destpositions[2]][destpositions[3]]=' ';
+							board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+2]=Character.toUpperCase(color);
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].getPieceInfo();
+						} else {
+							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
+						}
+					} else if (srcpositions[1]>destpositions[1]) { //compares columns to see if capturing left
+						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].isEmpty) {
+							System.out.println("Trying to capture left...");
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].setAbsPosition(destpositions[3]-2, destpositions[2]+(2*rowchange));
+							board.represent[srcpositions[2]][srcpositions[3]]=' ';
+							board.represent[destpositions[2]][destpositions[3]]=' ';
+							board.represent[destpositions[2]+(2*rowchange)][destpositions[3]-2]=Character.toUpperCase(color);
+							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].getPieceInfo();
+						} else {
+							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
+						}
+					}
+				}
+		//**********************logic for capturing pieces with KING pieces ENDS here. yeah its messy af and needs a proper separate method later*************************
+			} 
+			
 		} else {
 			System.out.println("INVALID MOVE: There is no piece at " + src + "!");
 		}
