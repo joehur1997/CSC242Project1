@@ -1,54 +1,84 @@
 import java.util.ArrayList;
 
 public class Node {
-	
+
 	Board state;
 	int turn = 0;
 	int value;
-	boolean blackwin;
-	boolean whitewin;
-//note: it doesn't matter what role AI is, just play with min or max. 
-	//we need result(s,a), action(s), isTerminal(s), which returns an int.
-		//minimax
-	public int isTerminal(Board state) {
-		state.check(state.gameBoard);
+	public Node(Board state) {
+
 	}
-	
+	//note: it doesn't matter what role AI is, just play with min or max. 
+	//we need result(s,a), action(s), isTerminal(s), which returns an int.
+	//minimax
+	public int isTerminal(Board state) {
+		state.score = 0;
+		state.check(state.gameBoard);
+		if(state.blackwin == true && state.whitewin == false) {
+			state.score = 1;
+		}
+		if(state.blackwin == false && state.whitewin == true) {
+			state.score = -1;
+		}
+		if(state.blackwin == false && state.whitewin == false) {
+			state.score = 0;
+		}
+		return state.score;
+
+	}
+	//black will be max, white will be min.
 	public int minimax(Board board) {
-		if(!node.game.check(board.)){
-			return node.value;
+		//if terminal state
+		if(!board.check(board.gameBoard)){
+
 		}
 		if() {
 
 		}
 	}
 	//returns move thats best
-	public String minimaxDec(Piece[][] state){
-		return "";
+	public String minimaxDec(Board state){
+		//initial state, black move first 
+		if(turn %2 == 0) {
+			System.out.println("Best move for black is :");
+			minValue(state);
+		}
+		if(turn %2 != 0) {
+			System.out.println("Best move for white is:");
+			
+		}
 	}
-	public int maxValue(Piece[][] state) {
-		if(!game.check(state)) {
-			return value;
+	public int maxValue(Board state) {
+		String bestMove = "none";
+		if(!state.check(state.gameBoard)) {
+			return state.score;
 		}
 		int v = Integer.MIN_VALUE;
-		for(Piece[] row: state) {
+		for(Piece[] row: state.gameBoard) {
 			for(Piece piece: row) {
-				for(String moves: piece.avalMoves) {
-					v = Math.max(v, minValue(game.futureState(moves, game)));
+				if(piece.color == 'w') {
+					for(String moves: piece.avalMoves) {
+						Board result = state.futureState(moves, state);
+						v = Math.max(v, minValue(result));
+						if(minValue(result) > v) {
+							bestMove = moves;
+						}
+					}
 				}
 			}
 		}
 		return v;
 	}
-	public int minValue(Piece[][] state) {
-		if(!game.check(state)) {
+	public int minValue(Board state) {
+		if(!state.check(state.gameBoard)) {
 			return value;
 		}
 		int v = Integer.MAX_VALUE;
-		for(Piece[] row: state) {
+		for(Piece[] row: state.gameBoard) {
 			for(Piece piece: row) {
 				for(String moves: piece.avalMoves) {
-					v = Math.min(v, maxValue(game.futureState(moves, game)));
+					Board result = state.futureState(moves, state);
+					v = Math.min(v, maxValue(result));
 				}
 			}
 		}
