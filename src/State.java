@@ -1,11 +1,14 @@
 import java.util.ArrayList;
 
-public class Node {
+public class State {
 
 	Board state;
+	ArrayList<String> bestMoves;
 	int turn = 0;
 	int value;
-	public Node(Board state) {
+	public State(Board state, ArrayList<String> bestMoves) {
+		this.state = state;
+		bestMoves = new ArrayList<String>();
 
 	}
 	//note: it doesn't matter what role AI is, just play with min or max. 
@@ -13,15 +16,16 @@ public class Node {
 	//minimax
 	public int isTerminal(Board state) {
 		state.score = 0;
-		state.check(state.gameBoard);
+		if(state.check(state.gameBoard)) {
 		if(state.blackwin == true && state.whitewin == false) {
-			state.score = 1;
+			state.score = 2;
 		}
 		if(state.blackwin == false && state.whitewin == true) {
-			state.score = -1;
+			state.score = -2;
 		}
 		if(state.blackwin == false && state.whitewin == false) {
 			state.score = 0;
+		}
 		}
 		return state.score;
 
@@ -44,7 +48,6 @@ public class Node {
 	}
 	//max and min value
 	public int maxValue(Board state) {
-		String bestMove = "none";
 		if(!state.check(state.gameBoard)) {
 			isTerminal(state);
 			return state.score;
@@ -56,6 +59,9 @@ public class Node {
 					for(String moves: piece.avalMoves) {
 						Board result = state.futureState(moves, state);
 						v = Math.max(v, minValue(result));
+						if(minValue(result) > v) {
+							
+						}
 					}
 				}
 			}
