@@ -26,7 +26,7 @@ public class Node {
 	public boolean isLeaf() {
 		return (children == null) && !(game.check(state));
 	}
-//	this is the idea, if you get it
+	//	this is the idea, if you get it
 	public void getChildren() {
 		//Black's turn
 		if(turn % 2 == 0) {
@@ -37,7 +37,7 @@ public class Node {
 						for(String moves: piece.avalMoves) {
 							//haven't decided on a heuristic function or how to determine terminal states and stuff yet. Sorry for being jank right now it'll get better
 							int value = 0;
-							
+
 							Piece[][] nextState = game.futureState(moves, game);
 							children.add(new Node(nextState, value));
 						}
@@ -46,19 +46,54 @@ public class Node {
 			}
 		}
 	}
-	//have not defined loss or win state yet, so can't do minimax (yet)
 	//minimax
 	public int minimax(Node node) {
 		if(!node.game.check(node.state)){
-			if()
+			return node.value;
 		}
-		return 1;
+		if() {
+
+		}
 	}
+	//returns move thats best
+	public String minimaxDec(Piece[][] state){
+		return "";
+	}
+	public int maxValue(Piece[][] state) {
+		if(!game.check(state)) {
+			return value;
+		}
+		int v = Integer.MIN_VALUE;
+		for(Piece[] row: state) {
+			for(Piece piece: row) {
+				for(String moves: piece.avalMoves) {
+					v = Math.max(v, minValue(game.futureState(moves, game)));
+				}
+			}
+		}
+		return v;
+	}
+	public int minValue(Piece[][] state) {
+		if(!game.check(state)) {
+			return value;
+		}
+		int v = Integer.MAX_VALUE;
+		for(Piece[] row: state) {
+			for(Piece piece: row) {
+				for(String moves: piece.avalMoves) {
+					v = Math.min(v, maxValue(game.futureState(moves, game)));
+				}
+			}
+		}
+		return v;
+	}
+
+
 	public void hminimax() {
-		
+
 	}
 	public static void main(String[] args) {
-		
+
 	}
 
 }
