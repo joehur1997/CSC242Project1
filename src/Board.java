@@ -6,7 +6,7 @@ public class Board {
 	Piece[][] gameBoard;
 	char[][] represent;
 	int size;
-	int turn = 0;
+	static int turn = 0;
 	boolean blackwin;
 	boolean whitewin;
 	int score;
@@ -182,62 +182,7 @@ public class Board {
 		return piecepos;
 	}
 
-	//see if game can still run
-	//even if this code doesn't work, it shows the idea. We can use this to determine the terminal state. 
-	public boolean check(Piece[][] gameBoard) {
-		boolean canRun = true;
-		//case where there are no pieces that are white or black
-		boolean noWhite = false;
-		boolean noBlack = false;
-		for(Piece[] rows: gameBoard) {
-			for(Piece pieces: rows) {
-				//if theres a single piece that has white color
-				if(pieces.color == 'w') {
-					noWhite = true;
-				}
-				if(pieces.color == 'b') {
-					noBlack = true;
-				}
-				
-			}			
-		}
-		boolean noPiece = noWhite || noBlack;
-		//case for availible moves
-		boolean BcanMove = false;
-		boolean WcanMove = false;
-		for(Piece[] rows: gameBoard) {
-			for(Piece pieces: rows) {
-				while(pieces.color == 'b') {
-					if(!pieces.avalMoves.isEmpty()) {
-						BcanMove = true;
-					}
-				}
-				while(pieces.color == 'w') {
-					if(!pieces.avalMoves.isEmpty()) {
-						WcanMove = true;
-					}
-				}
-			}
-		}
-		//utility
-		if(WcanMove || noWhite) {
-			blackwin = true;
-			whitewin = false;
-		}
-		if(BcanMove || noBlack) {
-			whitewin = true;
-			blackwin = false;
-		}
-		boolean noMoves = WcanMove || BcanMove;
-		canRun = noMoves || noPiece;
-		//cut off: average checkers game lasts 50 moves, and we don't want computer overloading.
-		if(turn > 60) {
-			canRun = false;
-			whitewin = false;
-			blackwin = false;
-		}
-		return canRun;
-	}
+
 	
 	public static boolean isValidDest (String pos) {
 		if ((pos.charAt(0)=='a'||pos.charAt(0)=='c'||pos.charAt(0)=='e'||pos.charAt(0)=='g')&& (Character.getNumericValue(pos.charAt(1))%2!=0)) {
@@ -339,7 +284,62 @@ public class Board {
 		}
 		gameBoard[y][x].avalMoves = temp.avalMoves;
 	}
-
+	//see if game can still run
+	//even if this code doesn't work, it shows the idea. We can use this to determine the terminal state. 
+	public boolean check(Piece[][] gameBoard) {
+		boolean canRun = true;
+		//case where there are no pieces that are white or black
+		boolean noWhite = false;
+		boolean noBlack = false;
+		for(Piece[] rows: gameBoard) {
+			for(Piece pieces: rows) {
+				//if theres a single piece that has white color
+				if(pieces.color == 'w') {
+					noWhite = true;
+				}
+				if(pieces.color == 'b') {
+					noBlack = true;
+				}
+				
+			}			
+		}
+		boolean noPiece = noWhite || noBlack;
+		//case for availible moves
+		boolean BcanMove = false;
+		boolean WcanMove = false;
+		for(Piece[] rows: gameBoard) {
+			for(Piece pieces: rows) {
+				while(pieces.color == 'b') {
+					if(!pieces.avalMoves.isEmpty()) {
+						BcanMove = true;
+					}
+				}
+				while(pieces.color == 'w') {
+					if(!pieces.avalMoves.isEmpty()) {
+						WcanMove = true;
+					}
+				}
+			}
+		}
+		//utility
+		if(WcanMove || noWhite) {
+			blackwin = true;
+			whitewin = false;
+		}
+		if(BcanMove || noBlack) {
+			whitewin = true;
+			blackwin = false;
+		}
+		boolean noMoves = WcanMove || BcanMove;
+		canRun = noMoves || noPiece;
+		//cut off: average checkers game lasts 50 moves, and we don't want computer overloading.
+		if(turn > 55) {
+			canRun = false;
+			whitewin = false;
+			blackwin = false;
+		}
+		return canRun;
+	}
 	public static boolean kingPiece(Piece piece, int size) { //hehe actually decided to make a separate method for kinging
 		if (piece.color=='b') {
 			if (size==1 && piece.y==8 &&(piece.x>=2&&piece.x<=8)) {
@@ -522,13 +522,14 @@ public class Board {
 		} else {
 			System.out.println("INVALID MOVE: There is no piece at " + src + "!");
 		}
+		turn++;
 	}
 	//this is the workaround im starting on: we can keep the next state intact, but idk what it does yet.
 	// careful for doing shallow copies
 	public Board futureState(String move, Board board){
 		Board next = board;
 		movePiece(move, next);
-		return next;
+		return next;	
 	}
 	
 	

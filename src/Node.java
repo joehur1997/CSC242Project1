@@ -27,30 +27,26 @@ public class Node {
 
 	}
 	//black will be max, white will be min.
-	public int minimax(Board board) {
-		//if terminal state
-		if(!board.check(board.gameBoard)){
 
-		}
-		if() {
-
-		}
-	}
 	//returns move thats best
-	public String minimaxDec(Board state){
+	public String minimaxDec(Board state) {
+		String bestMove = "none";
 		//initial state, black move first 
 		if(turn %2 == 0) {
-			System.out.println("Best move for black is :");
-			minValue(state);
+			System.out.println("Best move for black is: ");
+			System.out.println(maxValue);
 		}
+
 		if(turn %2 != 0) {
-			System.out.println("Best move for white is:");
-			
+			System.out.println("Best move for black is: ");
+
 		}
 	}
+	//max and min value
 	public int maxValue(Board state) {
 		String bestMove = "none";
 		if(!state.check(state.gameBoard)) {
+			isTerminal(state);
 			return state.score;
 		}
 		int v = Integer.MIN_VALUE;
@@ -60,9 +56,6 @@ public class Node {
 					for(String moves: piece.avalMoves) {
 						Board result = state.futureState(moves, state);
 						v = Math.max(v, minValue(result));
-						if(minValue(result) > v) {
-							bestMove = moves;
-						}
 					}
 				}
 			}
@@ -71,14 +64,17 @@ public class Node {
 	}
 	public int minValue(Board state) {
 		if(!state.check(state.gameBoard)) {
-			return value;
+			isTerminal(state);
+			return state.score;
 		}
 		int v = Integer.MAX_VALUE;
 		for(Piece[] row: state.gameBoard) {
 			for(Piece piece: row) {
-				for(String moves: piece.avalMoves) {
-					Board result = state.futureState(moves, state);
-					v = Math.min(v, maxValue(result));
+				if(piece.color == 'b') {
+					for(String moves: piece.avalMoves) {
+						Board result = state.futureState(moves, state);
+						v = Math.min(v, maxValue(result));
+					}
 				}
 			}
 		}
@@ -90,6 +86,7 @@ public class Node {
 
 	}
 	public static void main(String[] args) {
+		
 
 	}
 
