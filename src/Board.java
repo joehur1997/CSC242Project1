@@ -7,8 +7,9 @@ public class Board {
 	char[][] represent;
 	int size;
 	int turn = 0;
-	int blackwin = 0;
-	int whitewin = 0;
+	boolean blackwin;
+	boolean whitewin;
+	int score;
 
 	public Board(int size) {
 		int rep=0;
@@ -220,19 +221,20 @@ public class Board {
 		}
 		//utility
 		if(WcanMove || noWhite) {
-			blackwin++;
-			whitewin--;
-			
+			blackwin = true;
+			whitewin = false;
 		}
 		if(BcanMove || noBlack) {
-			whitewin++;
-			blackwin--;
+			whitewin = true;
+			blackwin = false;
 		}
 		boolean noMoves = WcanMove || BcanMove;
 		canRun = noMoves || noPiece;
 		//cut off: average checkers game lasts 50 moves, and we don't want computer overloading.
 		if(turn > 60) {
 			canRun = false;
+			whitewin = false;
+			blackwin = false;
 		}
 		return canRun;
 	}
@@ -523,10 +525,10 @@ public class Board {
 	}
 	//this is the workaround im starting on: we can keep the next state intact, but idk what it does yet.
 	// careful for doing shallow copies
-	public Piece[][] futureState(String move, Board board){
+	public Board futureState(String move, Board board){
 		Board next = board;
 		movePiece(move, next);
-		return next.gameBoard;
+		return next;
 	}
 	
 	
