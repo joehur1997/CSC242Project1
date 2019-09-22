@@ -7,6 +7,8 @@ public class Board {
 	char[][] represent;
 	int size;
 	int turn = 0;
+	int blackwin = 0;
+	int whitewin = 0;
 
 	public Board(int size) {
 		int rep=0;
@@ -180,7 +182,8 @@ public class Board {
 	}
 
 	//see if game can still run
-	public boolean check() {
+	//even if this code doesn't work, it shows the idea. We can use this to determine the terminal state. 
+	public boolean check(Piece[][] gameBoard) {
 		boolean canRun = true;
 		//case where there are no pieces that are white or black
 		boolean noWhite = false;
@@ -215,8 +218,22 @@ public class Board {
 				}
 			}
 		}
+		//utility
+		if(WcanMove || noWhite) {
+			blackwin++;
+			whitewin--;
+			
+		}
+		if(BcanMove || noBlack) {
+			whitewin++;
+			blackwin--;
+		}
 		boolean noMoves = WcanMove || BcanMove;
 		canRun = noMoves || noPiece;
+		//cut off: average checkers game lasts 50 moves, and we don't want computer overloading.
+		if(turn > 60) {
+			canRun = false;
+		}
 		return canRun;
 	}
 	
@@ -566,13 +583,7 @@ public class Board {
 		movePiece(testmove, board);
 		printArr(board.represent);
 		
-		board.getMoves("d4");
-		System.out.println("test");
-		System.out.println(board.gameBoard[0][3].avalMoves.size());
-		for(String moves: board.gameBoard[0][3].avalMoves) {
-			System.out.println(moves);
-			System.out.println("anything");
-		}
+		
 
 		//System.out.println("start position:"); 
 		//System.out.println("Empty? : " + board.gameBoard[3][0].isEmpty); //testing getting piece info

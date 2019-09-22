@@ -1,15 +1,10 @@
 public class Player {
-	
-	String color;
-	char piece;
-	
-	public Player(String color) {
-		if(color.equalsIgnoreCase("black")) {
-			this.piece = 'b';
-		}
-		else {
-			this.piece = 'w';
-		}
-	}
 
+	char color;
+	int score = 0;
+
+	public Player(char color) {
+		this.color = color;
+	}
+	
 }

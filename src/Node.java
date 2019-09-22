@@ -1,10 +1,11 @@
 import java.util.ArrayList;
 
 public class Node {
+	char aiColor;
 	Piece[][] state;
 	int turn = 0;
 	int value;
-	ArrayList<Node> children = null;
+	ArrayList<Node> children;
 	Board game;
 
 	public Node(Piece[][] state, int value) {
@@ -13,6 +14,7 @@ public class Node {
 		//hard coded; can change later.
 		game = new Board(1);
 		//i don't really have a way to test this yet.
+		children = new ArrayList<Node>();
 		getChildren();
 	}
 
@@ -22,7 +24,7 @@ public class Node {
 	}
 
 	public boolean isLeaf() {
-		return children == null;
+		return (children == null) && !(game.check(state));
 	}
 //	this is the idea, if you get it
 	public void getChildren() {
@@ -46,8 +48,11 @@ public class Node {
 	}
 	//have not defined loss or win state yet, so can't do minimax (yet)
 	//minimax
-	public void minimax(Piece[][] state) {
-		
+	public int minimax(Node node) {
+		if(!node.game.check(node.state)){
+			if()
+		}
+		return 1;
 	}
 	public void hminimax() {
 		
