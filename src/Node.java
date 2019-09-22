@@ -1,54 +1,21 @@
 import java.util.ArrayList;
 
 public class Node {
-	char aiColor;
-	Piece[][] state;
+	
+	Board state;
 	int turn = 0;
 	int value;
-	ArrayList<Node> children;
-	Board game;
-
-	public Node(Piece[][] state, int value) {
-		this.state = state;
-		this.value = value;
-		//hard coded; can change later.
-		game = new Board(1);
-		//i don't really have a way to test this yet.
-		children = new ArrayList<Node>();
-		getChildren();
+	boolean blackwin;
+	boolean whitewin;
+//note: it doesn't matter what role AI is, just play with min or max. 
+	//we need result(s,a), action(s), isTerminal(s), which returns an int.
+		//minimax
+	public int isTerminal(Board state) {
+		state.check(state.gameBoard);
 	}
-
-	public int compareTo(Node o) {
-
-		return this.value - o.value;
-	}
-
-	public boolean isLeaf() {
-		return (children == null) && !(game.check(state));
-	}
-	//	this is the idea, if you get it
-	public void getChildren() {
-		//Black's turn
-		if(turn % 2 == 0) {
-			for(Piece[] row: state) {
-				for(Piece piece : row) {
-					if(piece.color == 'b') {
-						//haven't done the setup for available moves for piece yet. I'm a bit confused with ur code so ama wait.
-						for(String moves: piece.avalMoves) {
-							//haven't decided on a heuristic function or how to determine terminal states and stuff yet. Sorry for being jank right now it'll get better
-							int value = 0;
-
-							Piece[][] nextState = game.futureState(moves, game);
-							children.add(new Node(nextState, value));
-						}
-					}
-				}
-			}
-		}
-	}
-	//minimax
-	public int minimax(Node node) {
-		if(!node.game.check(node.state)){
+	
+	public int minimax(Board board) {
+		if(!node.game.check(board.)){
 			return node.value;
 		}
 		if() {

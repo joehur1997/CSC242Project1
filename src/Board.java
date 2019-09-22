@@ -522,6 +522,7 @@ public class Board {
 		}
 	}
 	//this is the workaround im starting on: we can keep the next state intact, but idk what it does yet.
+	// careful for doing shallow copies
 	public Piece[][] futureState(String move, Board board){
 		Board next = board;
 		movePiece(move, next);
