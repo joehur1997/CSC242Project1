@@ -3,12 +3,12 @@ import java.util.ArrayList;
 public class State {
 
 	Board state;
-	ArrayList<String> bestMoves;
+	String bestMoves;
 	int turn = 0;
 	int value;
-	public State(Board state, ArrayList<String> bestMoves) {
+	public State(Board state, String bestMoves) {
 		this.state = state;
-		bestMoves = new ArrayList<String>();
+		this.bestMoves = bestMoves;
 
 	}
 	//note: it doesn't matter what role AI is, just play with min or max. 
