@@ -133,19 +133,19 @@ public class State {
 	public String alphaBeta(Board state) {
 		String bestMove = "none";
 		//initial state, black move first 
-	
+
 		if(turn %2 == 0) {
 			int v = abMaxValue(state, Integer.MAX_VALUE, Integer.MIN_VALUE);
 			System.out.println("Best move for black is: ");
 			bestMove =  getActions(state, v);
-	
+
 		}
 		if(turn %2 != 0) {		
 			int v = abMaxValue(state, Integer.MAX_VALUE, Integer.MIN_VALUE);
 			System.out.println("Best move for white is: ");
-			bestMove = getActions(state, abMinValue(v));
-	
-	
+			bestMove = getActions(state, v);
+
+
 		}
 		System.out.println(bestMove);
 		return bestMove;
@@ -189,6 +189,76 @@ public class State {
 		}
 		return v;
 	}
+
+
+	//functions needed for heuristics:
+	//number of pieces(color)
+	public int numOfpieces(char color) {
+		int i = 0;
+		if(color == 'b') {
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'b') {
+						i++;
+					}
+				}
+			}
+		}
+		if(color == 'w') {
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'w') {
+						i++;
+					}
+				}
+			}
+		}
+		else {
+			System.out.println("there are no such pieces.");
+			i = 0;
+		}
+		return i;
+	}
+	//total piece value(color)
+	public int pieceValue(char color) {
+		int i = 0;
+		if(color == 'b') {
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'b') {
+						if(piece.role == 'p') {
+							i++;
+						}
+						if(piece.role == 'k') {
+							i+= (int) 1.5;
+						}
+					}
+				}
+			}
+		}
+		if(color == 'w') {
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'w') {
+						if(piece.role == 'p') {
+							i++;
+						}
+						if(piece.role == 'k') {
+							i+= (int) 1.5;
+						}
+					}
+				}
+			}
+		}
+		else {
+			System.out.println("there are no such pieces.");
+			i = 0;
+		}
+		return i;
+	}
+	//average pawn distance from origin
+	
+
 
 	public static void main(String[] args) {
 
