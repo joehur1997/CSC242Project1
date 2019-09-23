@@ -129,7 +129,66 @@ public class State {
 		return v;
 	}
 
+	//alpha-beta pruning
+	public String alphaBeta(Board state) {
+		String bestMove = "none";
+		//initial state, black move first 
+	
+		if(turn %2 == 0) {
+			int v = abMaxValue(state, Integer.MAX_VALUE, Integer.MIN_VALUE);
+			System.out.println("Best move for black is: ");
+			bestMove =  getActions(state, v);
+	
+		}
+		if(turn %2 != 0) {		
+			int v = abMaxValue(state, Integer.MAX_VALUE, Integer.MIN_VALUE);
+			System.out.println("Best move for white is: ");
+			bestMove = getActions(state, abMinValue(v));
+	
+	
+		}
+		System.out.println(bestMove);
+		return bestMove;
+	}
+	public int abMaxValue(Board state, int alpha, int beta) {
+		if(!state.check(state.gameBoard)) {
+			isTerminal(state);
+			return state.score;
+		}
+		int v = Integer.MIN_VALUE;
+		for(Piece[] row: state.gameBoard) {
+			for(Piece piece: row) {
+				if(piece.color == 'b') {
+					for(String moves: piece.avalMoves) {
+						v = Math.max(v, abMinValue(state.futureState(moves, state), alpha, beta));
+						if(v >= beta) {return v;}
+						alpha = Math.max(alpha, v);
+					}
+				}
+			}
+		}
+		return v;
+	}
+	public int abMinValue(Board state, int alpha, int beta) {
+		if(!state.check(state.gameBoard)) {
+			isTerminal(state);
+			return state.score;
+		}
+		int v = Integer.MAX_VALUE;
+		for(Piece[] row: state.gameBoard) {
+			for(Piece piece: row) {
+				if(piece.color == 'w') {
+					for(String moves: piece.avalMoves) {
+						v = Math.min(v, abMaxValue(state.futureState(moves, state), alpha, beta));
+						if(v <= alpha) {return v;}
+						beta = Math.min(beta, v);
 
+					}
+				}
+			}
+		}
+		return v;
+	}
 
 	public static void main(String[] args) {
 
