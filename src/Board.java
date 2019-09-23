@@ -365,6 +365,25 @@ public class Board {
 			}
 		}
 	}
+	
+	public static void movePieceNoCapture(Board board, int[] srcpositions, int[] destpositions, char color) {
+		if ((srcpositions[0]>=destpositions[0]&&color == 'b')||destpositions[0]-srcpositions[0]>1) { //reg black can only move 1 row down (increase row)
+			System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
+		} else if ((srcpositions[0]<=destpositions[0]&&color=='w')||srcpositions[0]-destpositions[0]>1) { //reg white can only move 1 row up (decrease row)
+			System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
+		} else if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) { //moving logic mainly here. need to clean up and maybe make separate method
+			board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+			board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+			board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
+			board.represent[srcpositions[2]][srcpositions[3]]=' ';
+			if (kingPiece(board.gameBoard[destpositions[0]][destpositions[1]], board.size)) {//checks if can make king and changes the visual accordingly
+				board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
+			} else {
+				board.represent[destpositions[2]][destpositions[3]]=color;
+			}
+			board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+		}
+	}
 
 	//sorry, but some feedback on this method:
 	//this method does the job in terms of moving the piece but coding the tree and capture mechanic gets really hard. We need to be able to see states ahead.
