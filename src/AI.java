@@ -1,19 +1,18 @@
 import java.util.ArrayList;
 import java.util.Random;
 
-public class State {
+public class AI {
 
 	Board state;
 	boolean whiteMove;
 	boolean blackMove;
-	String bestMoves;
 	int turn = 0;
 	int value;
-	public State(Board state, String bestMoves) {
+	public AI(Board state) {
 		this.state = state;
-		this.bestMoves = bestMoves;
 
 	}
+	
 	//note: it doesn't matter what role AI is, just play with min or max. 
 	//we need result(s,a), action(s), isTerminal(s), which returns an int.
 	//minimax
@@ -97,13 +96,10 @@ public class State {
 		int v = Integer.MIN_VALUE;
 		for(Piece[] row: state.gameBoard) {
 			for(Piece piece: row) {
-				if(piece.color == 'w') {
+				if(piece.color == 'b') {
 					for(String moves: piece.avalMoves) {
 						Board result = state.futureState(moves, state);
 						v = Math.max(v, minValue(result));
-						if(minValue(result) > v) {
-
-						}
 					}
 				}
 			}
@@ -118,7 +114,7 @@ public class State {
 		int v = Integer.MAX_VALUE;
 		for(Piece[] row: state.gameBoard) {
 			for(Piece piece: row) {
-				if(piece.color == 'b') {
+				if(piece.color == 'w') {
 					for(String moves: piece.avalMoves) {
 						Board result = state.futureState(moves, state);
 						v = Math.min(v, maxValue(result));
@@ -256,8 +252,25 @@ public class State {
 		}
 		return i;
 	}
-	//average pawn distance from origin
 	
+	public int hminValue(Board state, int depth) {
+		if(!state.check(state.gameBoard)) {
+			isTerminal(state);
+			return state.score;
+		}
+		int v = Integer.MAX_VALUE;
+		for(Piece[] row: state.gameBoard) {
+			for(Piece piece: row) {
+				if(piece.color == 'b') {
+					for(String moves: piece.avalMoves) {
+						Board result = state.futureState(moves, state);
+						v = Math.min(v, maxValue(result));
+					}
+				}
+			}
+		}
+		return v;
+	}
 
 
 	public static void main(String[] args) {
