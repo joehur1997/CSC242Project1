@@ -547,6 +547,7 @@ public class Board {
 	// careful for doing shallow copies
 	public Board futureState(String move, Board board){
 		Board next = board;
+		
 		movePiece(move, next);
 		return next;	
 	}

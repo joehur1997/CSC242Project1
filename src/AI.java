@@ -28,10 +28,10 @@ public class AI {
 		}
 		if(state.check(state.gameBoard)) {
 			if(state.blackwin == true && state.whitewin == false) {
-				state.score = 2;
+				state.score = 1;
 			}
 			if(state.blackwin == false && state.whitewin == true) {
-				state.score = -2;
+				state.score = -1;
 			}
 			if(state.blackwin == false && state.whitewin == false) {
 				state.score = 0;
@@ -189,7 +189,7 @@ public class AI {
 
 	//functions needed for heuristics:
 	//number of pieces(color)
-	public int numOfpieces(char color) {
+	public int numOfpieces(char color, Board state) {
 		int i = 0;
 		if(color == 'b') {
 			for(Piece[] row: state.gameBoard) {
@@ -216,7 +216,7 @@ public class AI {
 		return i;
 	}
 	//total piece value(color)
-	public int pieceValue(char color) {
+	public int pieceValue(char color, Board state) {
 		int i = 0;
 		if(color == 'b') {
 			for(Piece[] row: state.gameBoard) {
@@ -252,23 +252,51 @@ public class AI {
 		}
 		return i;
 	}
-	
-	public int hminValue(Board state, int depth) {
-		if(!state.check(state.gameBoard)) {
-			isTerminal(state);
-			return state.score;
+	public int cutOff(Board state) {
+		int eval = 0;
+		if(turn %2 == 0) {
+			eval = pieceValue('b', state) + numOfpieces('b', state);
 		}
-		int v = Integer.MAX_VALUE;
-		for(Piece[] row: state.gameBoard) {
-			for(Piece piece: row) {
-				if(piece.color == 'b') {
-					for(String moves: piece.avalMoves) {
-						Board result = state.futureState(moves, state);
-						v = Math.min(v, maxValue(result));
+		if(turn %2 != 0) {
+			eval = pieceValue('b', state) + numOfpieces('b', state);
+		}
+		return eval;
+		
+	}
+	public int hminValue(Board state, int depth) {
+		int i = 0;
+		while (i < depth) {
+			int v = Integer.MAX_VALUE;
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'b') {
+						for(String moves: piece.avalMoves) {
+							Board result = state.futureState(moves, state);
+							v = Math.min(v, hmaxValue(result, i+1));
+						}
 					}
 				}
-			}
+			}	
 		}
+		
+		return v;
+	}
+	public int hminValue(Board state, int depth) {
+		int i = 0;
+		while (i < depth) {
+			int v = Integer.MAX_VALUE;
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'b') {
+						for(String moves: piece.avalMoves) {
+							Board result = state.futureState(moves, state);
+							v = Math.min(v, hminValue(result, i));
+						}
+					}
+				}
+			}	
+		}
+		
 		return v;
 	}
 
