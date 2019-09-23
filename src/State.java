@@ -49,13 +49,15 @@ public class State {
 		//initial state, black move first 
 		if(turn %2 == 0) {
 			System.out.println("Best move for black is: ");
-			System.out.println(maxValue);
+			bestMove =  getActions(state, maxValue(state));
 		}
 
 		if(turn %2 != 0) {
-			System.out.println("Best move for black is: ");
-
+			System.out.println("Best move for white is: ");
+			bestMove = getActions(state, minValue(state));
 		}
+		System.out.println(bestMove);
+		return bestMove;
 	}
 	public String getActions(Board board, int score) {
 		ArrayList<String> bestActions = new ArrayList<String>();
@@ -128,9 +130,7 @@ public class State {
 	}
 
 
-	public void hminimax() {
 
-	}
 	public static void main(String[] args) {
 
 
