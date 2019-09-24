@@ -44,7 +44,7 @@ public class Game {
 		Board board = new Board(gameSize);
 		board.scale();
 		printArr(board.represent);
-
+		System.out.println("Turn: " + board.turn);
 		System.out.println("Type your move in src-dest format (example: a2-b1) or type quit to end the game");
 		while (running) {
 			String move = sc.nextLine();
@@ -53,9 +53,10 @@ public class Game {
 				running=false;
 				break;
 			}
-			System.out.println(move);
+			System.out.println("*******************************************************");
 			board.movePiece(move, board);
 			printArr(board.represent);
+			System.out.println("Turn: " + board.turn);
 		}
 
 		}

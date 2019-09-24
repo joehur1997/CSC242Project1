@@ -9,6 +9,7 @@ public class Board {
 	static int turn = 0;
 	boolean blackwin;
 	boolean whitewin;
+	boolean capThisTurn;
 	int score;
 
 	public Board (Piece[][] gameBoard, char[][] represent, int size, int turn, boolean blackwin, boolean whitewin, int score) {
@@ -20,6 +21,10 @@ public class Board {
 		this.blackwin = blackwin;
 		this.whitewin = whitewin;
 		this.score = score;
+	}
+	
+	public void setCapThisTurn(boolean capThisTurn) {
+		this.capThisTurn = capThisTurn;
 	}
 	
 	public Board(int size) {
@@ -362,7 +367,6 @@ public class Board {
 				System.out.println("Kinged this piece");
 				return true;
 			} else {
-				System.out.println("Not king eligible");
 				return false;
 			}
 		} else {
@@ -371,24 +375,328 @@ public class Board {
 				System.out.println("Kinged this piece");
 				return true;
 			} else {
-				System.out.println("Not king eligible");
 				return false;
 			}
 		}
 	}
 	
-	public static void movePieceNoCapture(Board board, int[] srcpositions, int[] destpositions, char color) { //moving pieces without capturing
-		board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-		board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-		board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
-		board.represent[srcpositions[2]][srcpositions[3]]=' ';
-		if (kingPiece(board.gameBoard[destpositions[0]][destpositions[1]], board.size)) {//checks if can make king and changes the visual accordingly
-			board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
+	public static boolean isValidKingMove(Board board, int[] srcpositions, int[] destpositions) {
+		boolean isValid=true;
+		if (srcpositions[0]<destpositions[0]&&srcpositions[1]>destpositions[1]) {
+			for (int i=1; i<Math.abs(destpositions[0]-srcpositions[0]); i++) {
+				if (!board.gameBoard[srcpositions[0]+i][srcpositions[1]-i].isEmpty) {
+					isValid=false;
+				}
+			}
+		} else if (srcpositions[0]>destpositions[0]&&srcpositions[1]>destpositions[1]) {
+			for (int i=1; i<Math.abs(destpositions[0]-srcpositions[0]); i++) {
+				if (!board.gameBoard[srcpositions[0]-i][srcpositions[1]-i].isEmpty) {
+					isValid=false;
+				}
+			}
+		} else if (srcpositions[0]>destpositions[0]&&srcpositions[1]<destpositions[1]) {
+			for (int i=1; i<Math.abs(destpositions[0]-srcpositions[0]); i++) {
+				if (!board.gameBoard[srcpositions[0]-i][srcpositions[1]+i].isEmpty) {
+					isValid=false;
+				}
+			}
 		} else {
-			board.represent[destpositions[2]][destpositions[3]]=color;
+			for (int i=1; i<Math.abs(destpositions[0]-srcpositions[0]); i++) {
+				if (!board.gameBoard[srcpositions[0]+i][srcpositions[1]+i].isEmpty) {
+					isValid=false;
+				}
+			}
 		}
-		board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+		return isValid;
 	}
+	
+	public static void movePieceNoCapture(Board board, int[] srcpositions, int[] destpositions, char color) { //moving pieces without capturing
+		if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='p') {
+			board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+			board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+			board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
+			board.represent[srcpositions[2]][srcpositions[3]]=' ';
+			if (kingPiece(board.gameBoard[destpositions[0]][destpositions[1]], board.size)) {//checks if can make king and changes the visual accordingly
+				board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
+			} else {
+				board.represent[destpositions[2]][destpositions[3]]=color;
+			}
+			board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+		} else if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='k') { //moving kings without capture
+			board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+			board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+			board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
+			board.represent[srcpositions[2]][srcpositions[3]]=' ';
+			board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
+			board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+		}
+	}
+	
+	public static boolean canPieceCaptureSmall(Board board, int row, int col) {
+		boolean canCapture=false;
+		char color = board.gameBoard[row][col].getColor();
+		if (board.gameBoard[row][col].role=='p') {
+			if (board.gameBoard[row][col].color=='b') {
+				if (col<2 && row<2) {
+					if (!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!='b' && board.gameBoard[row+2][col+2].isEmpty) {
+						canCapture=true;
+					}
+				} else if (col>1 && row<2) {
+					if (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!='b' && board.gameBoard[row+2][col-2].isEmpty) {
+						canCapture=true;
+					}
+				}
+			} else { //white
+				if (col<2 && row>1) {
+					if (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!='w' && board.gameBoard[row-2][col+2].isEmpty) {
+						canCapture=true;
+					}
+				} else if (col>1 && row>1) {
+					if (!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!='w' && board.gameBoard[row-2][col-2].isEmpty) {
+						canCapture=true;
+					}
+				}
+			}
+		} else { //kings
+			if (col<2 && row<2) {
+				if (!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!=color && board.gameBoard[row+2][col+2].isEmpty) {
+					canCapture=true;
+				}
+			} else if (col>1 && row<2) {
+				if (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!=color && board.gameBoard[row+2][col-2].isEmpty) {
+					canCapture=true;
+				}
+			} else if (col<2 && row>1) {
+				if (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!=color && board.gameBoard[row-2][col+2].isEmpty) {
+					canCapture=true;
+				}
+			} else if (col>1 && row>1) {
+				if (!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!=color && board.gameBoard[row-2][col-2].isEmpty) {
+					canCapture=true;
+				}
+			}
+		}
+		return canCapture;
+	}
+	
+	public static boolean canPieceCapture(Board board, int row, int col) {
+		boolean canCapture=false;
+		char color = board.gameBoard[row][col].getColor();
+		if (board.gameBoard[row][col].role=='p') {//checking for regular pieces
+			if (board.gameBoard[row][col].color=='b') {//for black regular pieces
+				if (col>5) {
+					if (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!='b' && board.gameBoard[row+2][col-2].isEmpty) {
+						canCapture=true;
+					}
+				} else if (col<2) {
+					if (!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!='b' && board.gameBoard[row+2][col+2].isEmpty) {
+						canCapture=true;
+					}
+				} else {
+					if ((!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!='b' && board.gameBoard[row+2][col-2].isEmpty)
+							||(!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!='b' && board.gameBoard[row+2][col+2].isEmpty)) {
+						canCapture=true;
+					}
+				}
+			} else if (board.gameBoard[row][col].color=='w') { //for white regular pieces
+				if (col>5) {
+					if (!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!='w' && board.gameBoard[row-2][col-2].isEmpty) {
+						canCapture=true;
+					}
+				} else if (col<2) {
+					if (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!='w' && board.gameBoard[row-2][col+2].isEmpty) {
+						canCapture=true;
+					}
+				} else {
+					if ((!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!='w' && board.gameBoard[row-2][col-2].isEmpty)
+							||(!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!='w' && board.gameBoard[row-2][col+2].isEmpty)) {
+						canCapture=true;
+					}
+				}
+			}
+		} else { //checking for kings
+			if (row<2) {
+				if (col>5) {
+					if (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!=color && board.gameBoard[row+2][col-2].isEmpty) {
+						canCapture=true;
+					}
+				} else if (col<2) {
+					if (!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!=color && board.gameBoard[row+2][col+2].isEmpty) {
+						canCapture=true;
+					}
+				} else {
+					if ((!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!=color && board.gameBoard[row+2][col-2].isEmpty)
+							||(!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!=color && board.gameBoard[row+2][col+2].isEmpty)) {
+						canCapture=true;
+					}
+				}
+			} else if (row>5) {
+				if (col>5) {
+					if (!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!=color && board.gameBoard[row-2][col-2].isEmpty) {
+						canCapture=true;
+					}
+				} else if (col<2) {
+					if (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!=color && board.gameBoard[row-2][col+2].isEmpty) {
+						canCapture=true;
+					}
+				} else {
+					if ((!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!=color && board.gameBoard[row-2][col-2].isEmpty)
+							||(!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!=color && board.gameBoard[row-2][col+2].isEmpty)) {
+						canCapture=true;
+					}
+				}
+			} else  {
+				if (col<2) {
+					if ((!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!=color && board.gameBoard[row+2][col+2].isEmpty)
+							|| (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!=color && board.gameBoard[row-2][col+2].isEmpty)) {
+						canCapture=true;
+					}
+				} else if (col>5 ) {
+					if ((!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!=color && board.gameBoard[row-2][col-2].isEmpty)
+							|| (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!=color && board.gameBoard[row+2][col-2].isEmpty)) {
+						canCapture=true;
+					}
+				} else {
+					if ((!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!=color && board.gameBoard[row+2][col+2].isEmpty)
+							|| (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!=color && board.gameBoard[row-2][col+2].isEmpty)
+							|| (!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!=color && board.gameBoard[row-2][col-2].isEmpty)
+							|| (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!=color && board.gameBoard[row+2][col-2].isEmpty)) {
+						canCapture=true;
+					}
+				}
+			}
+		}
+		return canCapture;
+	}
+	
+	public static boolean capturePossible(Board board, char color) {
+		int n=4;
+		boolean canCapture=false;
+		if (board.size==2) {
+			n=8;
+		}
+		for (int i =0; i<n;i++) {
+			for (int j=0; j<n; j++) {
+				if (n==4) {
+					if (!board.gameBoard[i][j].isEmpty && board.gameBoard[i][j].getColor()==color) {
+						if (canPieceCaptureSmall(board, i, j)) {
+							canCapture=true;
+							System.out.println("Row: " + i + ", Col: " + j);
+							break;
+						}
+					}
+				} else { //larger board
+					if (!board.gameBoard[i][j].isEmpty && board.gameBoard[i][j].getColor()==color) {
+						if (canPieceCapture(board, i, j)) {
+							canCapture=true;
+							System.out.println("Row: " + i + ", Col: " + j);
+							break;
+						}
+					}
+
+				}
+			}
+		}
+		return canCapture;
+	}
+	
+	public static void capturePiece (Board board, int[] srcpositions, int[] destpositions, char color) { //capturing pieces with regular pieces
+		System.out.println("Trying to capture...");
+		int rowchange=1;
+		int rightorleft=1;
+		if(color=='w') {
+			rowchange=(-1);
+			System.out.println("White is trying to capture black...");
+		} else {
+			System.out.println("Black is trying to capture white...");
+		}
+		if (srcpositions[1]>destpositions[1]) {//checks if capturing right or left
+			rightorleft=-1;
+		}
+		if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].isEmpty) {
+				board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+				board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+				board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
+				board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].setAbsPosition(destpositions[3]+(2*rightorleft), destpositions[2]+(2*rowchange));
+				board.represent[srcpositions[2]][srcpositions[3]]=' ';
+				board.represent[destpositions[2]][destpositions[3]]=' ';
+				if (kingPiece(board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft], board.size)) {//checks if can make king and changes the visual accordingly
+					board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+(2*rightorleft)]=Character.toUpperCase(color);
+				} else {
+					board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+(2*rightorleft)]=color;
+				}
+				board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].getPieceInfo();
+				int piecerow=destpositions[0]+rowchange;
+				int piececol=destpositions[1]+rightorleft;
+				System.out.println("Capture successful");
+				board.setCapThisTurn(true);
+				if (board.size==1) {
+					if (canPieceCaptureSmall(board, piecerow, piececol)) {
+						System.out.println("This piece can capture another piece!");
+						board.setCapThisTurn(false);
+					} else {
+						turn++;
+					}
+				} else {
+					if (canPieceCapture(board, piecerow, piececol)) {
+						System.out.println("This piece can capture another piece!");
+						board.setCapThisTurn(false);
+					} else {
+						turn++;
+					}
+				}
+		} else {
+			System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
+		}
+	}
+	
+	public static void capturePieceKing (Board board, int[] srcpositions, int[] destpositions, char color) { //capturing pieces with kings
+		System.out.println("Trying to capture...");
+		int rowchange=1;
+		int rightorleft=1;
+		if (color=='w' && (srcpositions[0]>destpositions[0]) ) {
+			rowchange = -1;
+		} else if (color=='b' && (srcpositions[0]>destpositions[0])) {
+			rowchange = -1;
+		}
+		if (srcpositions[1]>destpositions[1]) {//checks if capturing right or left
+			rightorleft=-1;
+		}
+		System.out.println(srcpositions[1] + " " + destpositions[1]);
+		if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].isEmpty) {
+				board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+				board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+				board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
+				board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].setAbsPosition(destpositions[3]+(2*rightorleft), destpositions[2]+(2*rowchange));
+				board.represent[srcpositions[2]][srcpositions[3]]=' ';
+				board.represent[destpositions[2]][destpositions[3]]=' ';
+				board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+(2*rightorleft)]=Character.toUpperCase(color);
+				board.gameBoard[destpositions[0]+rowchange][destpositions[1]+rightorleft].getPieceInfo();
+				int piecerow=destpositions[0]+rowchange;
+				int piececol=destpositions[1]+rightorleft;
+				System.out.println("Capture successful");
+				board.setCapThisTurn(true);
+				if (board.size==1) {
+					if (canPieceCaptureSmall(board, piecerow, piececol)) {
+						System.out.println("This piece can capture another piece!");
+						board.setCapThisTurn(false);
+					} else {
+						turn++;
+					}
+				} else {
+					if (canPieceCapture(board, piecerow, piececol)) {
+						System.out.println("This piece can capture another piece!");
+						board.setCapThisTurn(false);
+					} else {
+						turn++;
+					}
+				}
+
+		} else {
+			System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
+		}
+	}
+
 
 	//sorry, but some feedback on this method:
 	//this method does the job in terms of moving the piece but coding the tree and capture mechanic gets really hard. We need to be able to see states ahead.
@@ -404,8 +712,17 @@ public class Board {
 		int[] srcpositions = findPiecePos(src);
 
 		char color = board.gameBoard[srcpositions[0]][srcpositions[1]].getColor(); //gets original color
-		System.out.println(board.gameBoard[srcpositions[0]][srcpositions[1]].getY() + " " + board.gameBoard[srcpositions[0]][srcpositions[1]].getX() + " " + color);
-
+		if (turn%2==0) {
+			if (color!='b') {
+				System.out.println("This is black's turn! You tried to move a white piece.");
+				return;
+			}
+		} else {
+			if (color!='w') {
+				System.out.println("This is white's turn! You tried to move a black piece.");
+				return;
+			}
+		}
 		String dest = moveinfo[1];
 		if (!isValidInput(dest, board)) {
 			return;
@@ -422,122 +739,51 @@ public class Board {
 				} else if ((srcpositions[0]<=destpositions[0]&&color=='w')||srcpositions[0]-destpositions[0]>1) { //reg white can only move 1 row up (decrease row)
 					System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
 				} else if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) { //moving logic mainly here. need to clean up and maybe make separate method
-					movePieceNoCapture(board, srcpositions, destpositions, color);
+					if (!capturePossible(board, color)) {
+						movePieceNoCapture(board, srcpositions, destpositions, color);
+						turn++;
+					} else {
+						System.out.println("INVALID MOVE: You must capture a piece if you can!");
+						return;
+					}
 				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
 					System.out.println("INVALID MOVE: You already have a piece at " + dest + "!");
 					
 		//**********************logic for capturing pieces with REGULAR pieces STARTS below. yeah its messy af and needs a proper separate method later*************************
 				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color!=color) { 
-					System.out.println("Trying to capture...");
-					int rowchange=1;
-					if(color=='w') {
-						rowchange=(-1);
-						System.out.println("White is trying to capture black...");
-					} else {
-						System.out.println("Black is trying to capture white...");
-					}
-					System.out.println(srcpositions[1] + " " + destpositions[1]);
-					if (srcpositions[1]<destpositions[1]) { //compares columns to see if capturing right
-						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].isEmpty) {
-							System.out.println("Trying to capture right...");
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].setAbsPosition(destpositions[3]+2, destpositions[2]+(2*rowchange));
-							board.represent[srcpositions[2]][srcpositions[3]]=' ';
-							board.represent[destpositions[2]][destpositions[3]]=' ';
-							if (kingPiece(board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1], board.size)) {//checks if can make king and changes the visual accordingly
-								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+2]=Character.toUpperCase(color);
-							} else {
-								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+2]=color;
-							}
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].getPieceInfo();
-						} else {
-							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
-						}
-					} else if (srcpositions[1]>destpositions[1]) { //compares columns to see if capturing left
-						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].isEmpty) {
-							System.out.println("Trying to capture left...");
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].setAbsPosition(destpositions[3]-2, destpositions[2]+(2*rowchange));
-							System.out.println("Abs src position: " + srcpositions[2] + " " + srcpositions[3]);
-							board.represent[srcpositions[2]][srcpositions[3]]=' ';
-							board.represent[destpositions[2]][destpositions[3]]=' ';
-							System.out.println("Abs after cap dest position: " + (destpositions[2]+2) + " " + (destpositions[3]-(2*rowchange)));
-							if (kingPiece(board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1], board.size)) {//checks if can make king and changes the visual accordingly
-								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]-2]=Character.toUpperCase(color);
-							} else {
-								board.represent[destpositions[2]+(2*rowchange)][destpositions[3]-2]=color;
-							}
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].getPieceInfo();
-						} else {
-							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
-						}
-					}
+					capturePiece(board, srcpositions, destpositions, color);
 				}
 		//**********************logic for capturing pieces with REGULAR pieces ENDS here. yeah its messy af and needs a proper separate method later***************************
 				
-			} else if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='k') { //logic if piece is king
+			} else if (board.gameBoard[srcpositions[0]][srcpositions[1]].role=='k') { //logic if piece is KING
 				if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) { //moving logic mainly here. need to clean up and maybe make separate method
-					board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-					board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-					board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
-					board.represent[srcpositions[2]][srcpositions[3]]=' ';
-					board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
-					board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+					if (isValidKingMove(board, srcpositions, destpositions)) {
+						if (!capturePossible(board, color)) {
+							movePieceNoCapture(board, srcpositions, destpositions, color);
+							turn++;
+						} else {
+							System.out.println("INVALID MOVE: You must capture a piece if you can!");
+							return;
+						}
+					} else {
+						System.out.println("The King is blocked by piece!");
+					}
 				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
 					System.out.println("INVALID MOVE: You already have a piece at " + dest + "!");
 					
 		//**********************logic for capturing pieces with KING pieces STARTS below. yeah its messy af and needs a proper separate method later*************************
-				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color!=color) { 
-					System.out.println("Trying to capture...");
-					int rowchange=1;
-					if (color=='w' && (srcpositions[0]>destpositions[0]) ) {
-						rowchange = -1;
-					} else if (color=='b' && (srcpositions[0]>destpositions[0])) {
-						rowchange = -1;
-					}
-
-					System.out.println(srcpositions[1] + " " + destpositions[1]);
-					if (srcpositions[1]<destpositions[1]) { //compares columns to see if capturing right
-						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].isEmpty) {
-							System.out.println("Trying to capture right...");
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].setAbsPosition(destpositions[3]+2, destpositions[2]+(2*rowchange));
-							board.represent[srcpositions[2]][srcpositions[3]]=' ';
-							board.represent[destpositions[2]][destpositions[3]]=' ';
-							board.represent[destpositions[2]+(2*rowchange)][destpositions[3]+2]=Character.toUpperCase(color);
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]+1].getPieceInfo();
-						} else {
-							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
-						}
-					} else if (srcpositions[1]>destpositions[1]) { //compares columns to see if capturing left
-						if (board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].isEmpty) {
-							System.out.println("Trying to capture left...");
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-							board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]][destpositions[1]].clearPiece();
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].setAbsPosition(destpositions[3]-2, destpositions[2]+(2*rowchange));
-							board.represent[srcpositions[2]][srcpositions[3]]=' ';
-							board.represent[destpositions[2]][destpositions[3]]=' ';
-							board.represent[destpositions[2]+(2*rowchange)][destpositions[3]-2]=Character.toUpperCase(color);
-							board.gameBoard[destpositions[0]+rowchange][destpositions[1]-1].getPieceInfo();
-						} else {
-							System.out.println("INVALID MOVE: Unable to capture due to blocking piece!");
-						}
+				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color!=color) {
+					if (isValidKingMove(board, srcpositions, destpositions)) {
+						capturePieceKing(board, srcpositions, destpositions, color);
+					} else {
+						System.out.println("The King is blocked by piece!");
 					}
 				}
 		//**********************logic for capturing pieces with KING pieces ENDS here. yeah its messy af and needs a proper separate method later*************************
 			} 
-			
 		} else {
 			System.out.println("INVALID MOVE: There is no piece at " + src + "!");
 		}
-		turn++;
 	}
 	//this is the workaround im starting on: we can keep the next state intact, but idk what it does yet.
 	// careful for doing shallow copies
