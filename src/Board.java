@@ -11,6 +11,17 @@ public class Board {
 	boolean whitewin;
 	int score;
 
+	public Board (Piece[][] gameBoard, char[][] represent, int size, int turn, boolean blackwin, boolean whitewin, int score) {
+		this.vertical = vertical;
+		this.gameBoard = gameBoard;
+		this.represent = represent;
+		this.size = size;
+		this.turn = turn;
+		this.blackwin = blackwin;
+		this.whitewin = whitewin;
+		this.score = score;
+	}
+	
 	public Board(int size) {
 		int rep=0;
 		if (size==1) {
@@ -366,23 +377,17 @@ public class Board {
 		}
 	}
 	
-	public static void movePieceNoCapture(Board board, int[] srcpositions, int[] destpositions, char color) {
-		if ((srcpositions[0]>=destpositions[0]&&color == 'b')||destpositions[0]-srcpositions[0]>1) { //reg black can only move 1 row down (increase row)
-			System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
-		} else if ((srcpositions[0]<=destpositions[0]&&color=='w')||srcpositions[0]-destpositions[0]>1) { //reg white can only move 1 row up (decrease row)
-			System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
-		} else if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) { //moving logic mainly here. need to clean up and maybe make separate method
-			board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-			board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-			board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
-			board.represent[srcpositions[2]][srcpositions[3]]=' ';
-			if (kingPiece(board.gameBoard[destpositions[0]][destpositions[1]], board.size)) {//checks if can make king and changes the visual accordingly
-				board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
-			} else {
-				board.represent[destpositions[2]][destpositions[3]]=color;
-			}
-			board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+	public static void movePieceNoCapture(Board board, int[] srcpositions, int[] destpositions, char color) { //moving pieces without capturing
+		board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
+		board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
+		board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
+		board.represent[srcpositions[2]][srcpositions[3]]=' ';
+		if (kingPiece(board.gameBoard[destpositions[0]][destpositions[1]], board.size)) {//checks if can make king and changes the visual accordingly
+			board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
+		} else {
+			board.represent[destpositions[2]][destpositions[3]]=color;
 		}
+		board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
 	}
 
 	//sorry, but some feedback on this method:
@@ -417,16 +422,7 @@ public class Board {
 				} else if ((srcpositions[0]<=destpositions[0]&&color=='w')||srcpositions[0]-destpositions[0]>1) { //reg white can only move 1 row up (decrease row)
 					System.out.println("INVALID MOVE: Non-king pieces can only move 1 square forward diagonally!");
 				} else if (board.gameBoard[destpositions[0]][destpositions[1]].isEmpty) { //moving logic mainly here. need to clean up and maybe make separate method
-					board.gameBoard[destpositions[0]][destpositions[1]].updatePiece(board.gameBoard[srcpositions[0]][srcpositions[1]]);
-					board.gameBoard[srcpositions[0]][srcpositions[1]].clearPiece();
-					board.gameBoard[destpositions[0]][destpositions[1]].setAbsPosition(destpositions[3], destpositions[2]);
-					board.represent[srcpositions[2]][srcpositions[3]]=' ';
-					if (kingPiece(board.gameBoard[destpositions[0]][destpositions[1]], board.size)) {//checks if can make king and changes the visual accordingly
-						board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
-					} else {
-						board.represent[destpositions[2]][destpositions[3]]=color;
-					}
-					board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
+					movePieceNoCapture(board, srcpositions, destpositions, color);
 				} else if (board.gameBoard[destpositions[0]][destpositions[1]].color==color) {
 					System.out.println("INVALID MOVE: You already have a piece at " + dest + "!");
 					
@@ -546,8 +542,12 @@ public class Board {
 	//this is the workaround im starting on: we can keep the next state intact, but idk what it does yet.
 	// careful for doing shallow copies
 	public Board futureState(String move, Board board){
+<<<<<<< HEAD
 		Board next = board;
 		
+=======
+		Board next = new Board(board.gameBoard, board.represent, board.size, board.turn, board.blackwin, board.whitewin, board.score);
+>>>>>>> 026824e28c0b17ff197510756be1647690f87116
 		movePiece(move, next);
 		return next;	
 	}
