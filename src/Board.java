@@ -788,12 +788,7 @@ public class Board {
 	//this is the workaround im starting on: we can keep the next state intact, but idk what it does yet.
 	// careful for doing shallow copies
 	public Board futureState(String move, Board board){
-<<<<<<< HEAD
-		Board next = board;
-		
-=======
 		Board next = new Board(board.gameBoard, board.represent, board.size, board.turn, board.blackwin, board.whitewin, board.score);
->>>>>>> 026824e28c0b17ff197510756be1647690f87116
 		movePiece(move, next);
 		return next;	
 	}
