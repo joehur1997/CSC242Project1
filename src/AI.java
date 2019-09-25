@@ -307,9 +307,9 @@ public class AI {
 
 	}
 	public int hminValue(Board state, int depth) {
-
+		int v = Integer.MAX_VALUE;
 		while (depth > 0) {
-			int v = Integer.MAX_VALUE;
+			 v = Integer.MAX_VALUE;
 			for(Piece[] row: state.gameBoard) {
 				for(Piece piece: row) {
 					if(piece.color == 'b') {
@@ -325,8 +325,8 @@ public class AI {
 		return v;
 	}
 	public int hmaxValue(Board state, int depth) {
+		int v = Integer.MIN_VALUE;
 		while (depth > 0) {
-			int v = Integer.MAX_VALUE;
 			for(Piece[] row: state.gameBoard) {
 				for(Piece piece: row) {
 					if(piece.color == 'b') {
