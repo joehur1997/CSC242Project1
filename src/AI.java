@@ -8,13 +8,56 @@ public class AI {
 	boolean blackMove;
 	int turn = 0;
 	int value;
-	public AI(Board state) {
+	int algo;
+	String movePlayed;
+	public AI(Board state, int algo) {
 		this.state = state;
-
+		if(algo == 1) {
+			movePlayed = randMove(state);
+		}
+		if(algo == 2) {
+			movePlayed = minimaxDec(state);
+		}
+		if(algo == 3) {
+			movePlayed = alphaBeta(state);
+		}
+		if(algo == 4) {
+			movePlayed == hminiMax
+		}
 	}
-	
+	public void setBoard(Board state) {
+		this.state = state;
+	}
 	//note: it doesn't matter what role AI is, just play with min or max. 
 	//we need result(s,a), action(s), isTerminal(s), which returns an int.
+	public String randMove(Board state) {
+		Random rnd = new Random();
+		ArrayList<String> randomMoveList = new ArrayList<String>();
+		if(state.turn % 2 == 0) {
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'b') {
+						for(String moves: piece.avalMoves) {
+							randomMoveList.add(moves);
+						}
+					}
+				}
+			}
+		}
+		else {
+			for(Piece[] row: state.gameBoard) {
+				for(Piece piece: row) {
+					if(piece.color == 'w') {
+						for(String moves: piece.avalMoves) {
+							randomMoveList.add(moves);
+						}
+					}
+				}
+			}
+		}
+		int rng = rnd.nextInt(randomMoveList.size() -1);
+		return randomMoveList.get(rng);
+	}
 	//minimax
 	public int isTerminal(Board state) {
 		state.score = 0;
@@ -261,7 +304,7 @@ public class AI {
 			eval = pieceValue('b', state) + numOfpieces('b', state);
 		}
 		return eval;
-		
+
 	}
 	public int hminValue(Board state, int depth) {
 		int i = 0;
@@ -278,7 +321,7 @@ public class AI {
 				}
 			}	
 		}
-		
+
 		return v;
 	}
 	public int hminValue(Board state, int depth) {
@@ -296,7 +339,7 @@ public class AI {
 				}
 			}	
 		}
-		
+
 		return v;
 	}
 

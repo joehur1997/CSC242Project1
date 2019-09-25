@@ -2,8 +2,9 @@ import java.util.Scanner;
 
 public class Game {
 	static boolean running = true;
-
 	int[][] board;
+	static boolean humanTurn;
+
 	public Game(int n) {
 		board = new int[4][4];
 		for(int[] rows : board) {
@@ -40,11 +41,20 @@ public class Game {
 		int gameSize = sc.nextInt();
 		sc.nextLine();
 		System.out.println("You picked: " + gameSize);
+		System.out.println("Pick a Color: Black (b) or White (w) (Black goes first!): ");
+		String playerColor = sc.next();
+		if(playerColor.charAt(0) == 'b') {
+			humanTurn = true;
+		}
+		else {
+			humanTurn = false;
+		}
 		
 		Board board = new Board(gameSize);
 		board.scale();
 		printArr(board.represent);
-		System.out.println("Turn: " + board.turn);
+		// looks nicer this way: turn 0 is weird
+		System.out.println("Turn: " + board.turn + 1);
 		System.out.println("Type your move in src-dest format (example: a2-b1) or type quit to end the game");
 		while (running) {
 			String move = sc.nextLine();
@@ -54,10 +64,16 @@ public class Game {
 				break;
 			}
 			System.out.println("*******************************************************");
-			board.movePiece(move, board);
-			printArr(board.represent);
+			if(humanTurn) {
+				System.out.println("Turn: " + board.turn + 1);
+				System.out.println("Type your move in src-dest format (example: a2-b1) or type quit to end the game");
+				board.movePiece(move, board);
+				printArr(board.represent);
+				humanTurn = false;
+				board.turn++;
+			}
 			System.out.println("Turn: " + board.turn);
 		}
 
-		}
 	}
+}
