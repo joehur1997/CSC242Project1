@@ -22,7 +22,7 @@ public class AI {
 			movePlayed = alphaBeta(state);
 		}
 		if(algo == 4) {
-			movePlayed == hminiMax;
+
 		}
 	}
 	public void setBoard(Board state) {
@@ -306,6 +306,23 @@ public class AI {
 		return eval;
 
 	}
+	
+	public String hminimaxDec(Board state) {
+		String bestMove = "none";
+		//initial state, black move first 
+		if(turn %2 == 0) {
+			System.out.println("Best move for black is: ");
+			bestMove =  getActions(state, hmaxValue(state, 8));
+		}
+
+		if(turn %2 != 0) {
+			System.out.println("Best move for white is: ");
+			bestMove = getActions(state, hminValue(state, 8));
+		}
+		System.out.println(bestMove);
+		return bestMove;
+	}
+	
 	public int hminValue(Board state, int depth) {
 		int v = Integer.MAX_VALUE;
 		while (depth > 0) {
