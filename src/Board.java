@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Board {
@@ -11,6 +12,8 @@ public class Board {
 	boolean whitewin;
 	boolean capThisTurn;
 	int score;
+	char playerColor;
+	char AIColor;
 
 	public Board (Piece[][] gameBoard, char[][] represent, int size, int turn, boolean blackwin, boolean whitewin, int score) {
 		this.vertical = vertical;
@@ -27,7 +30,13 @@ public class Board {
 		this.capThisTurn = capThisTurn;
 	}
 	
-	public Board(int size) {
+	public Board(int size, char playerColor) {
+		this.playerColor=playerColor;
+		if (playerColor=='b') {
+			this.AIColor='w';
+		} else {
+			this.AIColor='b';
+		}
 		int rep=0;
 		if (size==1) {
 			rep=10;
@@ -139,6 +148,48 @@ public class Board {
 			}
 			break;
 		}	
+	}
+	
+	public static String getInputfromPos (int row, int col) {
+		char[] input = {'x','x'};
+		if(row==0) {
+			input[0]='a';
+		} else if (row==1){
+			input[0]='b';
+		} else if (row==2){
+			input[0]='c';
+		} else if (row==3){
+			input[0]='d';
+		} else if (row==4){
+			input[0]='e';
+		} else if (row==5){
+			input[0]='f';
+		} else if (row==6){
+			input[0]='g';
+		} else if (row==7){
+			input[0]='h';
+		}
+		
+		if(col==0) {
+			input[1]='1';
+		} else if (col==1){
+			input[1]='2';
+		} else if (col==2){
+			input[1]='3';
+		} else if (col==3){
+			input[1]='4';
+		} else if (col==4){
+			input[1]='5';
+		} else if (col==5){
+			input[1]='6';
+		} else if (col==6){
+			input[1]='7';
+		} else if (col==7){
+			input[1]='8';
+		}
+		
+		String cookedinput = String.valueOf(input);
+		return cookedinput;
 	}
 
 	public static int[] findPiecePos(String string) {
@@ -430,6 +481,7 @@ public class Board {
 			board.represent[destpositions[2]][destpositions[3]]=Character.toUpperCase(color);
 			board.gameBoard[destpositions[0]][destpositions[1]].getPieceInfo();
 		}
+		board.capThisTurn=false;
 	}
 	
 	public static boolean canPieceCaptureSmall(Board board, int row, int col) {
@@ -477,6 +529,53 @@ public class Board {
 			}
 		}
 		return canCapture;
+	}
+	
+	public static String getSingleAICapture(Board board, int row, int col) {
+		String capture="";
+		char color = board.gameBoard[row][col].getColor();
+		if (board.gameBoard[row][col].role=='p') {
+			if (board.gameBoard[row][col].color=='b') {
+				if (col<2 && row<2) {
+					if (!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!='b' && board.gameBoard[row+2][col+2].isEmpty) {
+						capture = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+					}
+				} else if (col>1 && row<2) {
+					if (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!='b' && board.gameBoard[row+2][col-2].isEmpty) {
+						capture = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+					}
+				}
+			} else { //white
+				if (col<2 && row>1) {
+					if (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!='w' && board.gameBoard[row-2][col+2].isEmpty) {
+						capture = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col+1));
+					}
+				} else if (col>1 && row>1) {
+					if (!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!='w' && board.gameBoard[row-2][col-2].isEmpty) {
+						capture = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col-1));
+					}
+				}
+			}
+		} else { //kings
+			if (col<2 && row<2) {
+				if (!board.gameBoard[row+1][col+1].isEmpty && board.gameBoard[row+1][col+1].color!=color && board.gameBoard[row+2][col+2].isEmpty) {
+					capture = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+				}
+			} else if (col>1 && row<2) {
+				if (!board.gameBoard[row+1][col-1].isEmpty && board.gameBoard[row+1][col-1].color!=color && board.gameBoard[row+2][col-2].isEmpty) {
+					capture = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+				}
+			} else if (col<2 && row>1) {
+				if (!board.gameBoard[row-1][col+1].isEmpty && board.gameBoard[row-1][col+1].color!=color && board.gameBoard[row-2][col+2].isEmpty) {
+					capture = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col+1));
+				}
+			} else if (col>1 && row>1) {
+				if (!board.gameBoard[row-1][col-1].isEmpty && board.gameBoard[row-1][col-1].color!=color && board.gameBoard[row-2][col-2].isEmpty) {
+					capture = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col-1));
+				}
+			}
+		}
+		return capture;
 	}
 	
 	public static boolean canPieceCapture(Board board, int row, int col) {
@@ -569,6 +668,62 @@ public class Board {
 		return canCapture;
 	}
 	
+	public static ArrayList<String> getAICaptures (Board board, char color) {
+		int n=4;
+		ArrayList<String> captures = new ArrayList<String>();
+		if (board.size==2) {
+			n=8;
+		}
+		for (int i =0; i<n;i++) {
+			for (int j=0; j<n; j++) {
+				if (n==4) {
+					if (!board.gameBoard[i][j].isEmpty && board.gameBoard[i][j].getColor()==color) {
+						if (canPieceCaptureSmall(board, i, j)) {
+							String capture = getSingleAICapture(board, i, j);
+							captures.add(capture);
+						}
+					}
+				} else { //larger board
+					if (!board.gameBoard[i][j].isEmpty && board.gameBoard[i][j].getColor()==color) {
+						if (canPieceCapture(board, i, j)) {
+							String capture = getSingleAICapture(board, i, j);
+							captures.add(capture);
+						}
+					}
+
+				}
+			}
+		}
+		return captures;
+	}
+	
+	public static boolean gameContinue(Board board, char color) {
+		int n=4;
+		if (board.size==2) {
+			n=8;
+		}
+		boolean foundpiece = false;
+		for (int i =0; i<n;i++) {
+			for (int j=0; j<n; j++) {
+				if (n==4) {
+					if (!board.gameBoard[i][j].isEmpty && board.gameBoard[i][j].getColor()==color) {
+						foundpiece = true;
+						break;
+					}
+				} else { //larger board
+					if (!board.gameBoard[i][j].isEmpty && board.gameBoard[i][j].getColor()==color) {
+						foundpiece = true;
+					} 
+				}
+			}
+		}
+		if (foundpiece) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static boolean capturePossible(Board board, char color) {
 		int n=4;
 		boolean canCapture=false;
@@ -599,6 +754,174 @@ public class Board {
 		}
 		return canCapture;
 	}
+	
+	public static String createMove(String input1, String input2) {
+		String move = input1 + "-" + input2;
+		return move;
+	}
+	
+	public static ArrayList<String> getAiMoves (Board board) {
+		ArrayList<String> moves = new ArrayList<String>();
+		char color='b';
+		if (board.playerColor=='b') {
+			color = 'w';
+		}
+		int n=4;
+		if (board.size==2) {
+			n=8;
+		}
+		for (int row =0; row<n;row++) {
+			for (int col=0; col<n; col++) {
+				if (n==4) {
+					if (!board.gameBoard[row][col].isEmpty && board.gameBoard[row][col].getColor()==color) {
+						if (color=='b' && board.gameBoard[row][col].getRole()!='k') {
+							if (col==3 && row!=3) {
+								if (board.gameBoard[row+1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+									moves.add(move);
+								}
+							} else if (col==0 && row!=3) {
+								if (board.gameBoard[row+1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+									moves.add(move);
+								}
+							} else if (row!=3) {
+								if (board.gameBoard[row+1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row+1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+									moves.add(move);
+								}
+							}
+						} else if (color=='w' && board.gameBoard[row][col].getRole()!='k') { //white
+							if (col==3 && row!=0) {
+								if (board.gameBoard[row-1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col-1));
+									moves.add(move);
+								}
+							} else if (col==0 && row!=0) {
+								if (board.gameBoard[row-1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col+1));
+									moves.add(move);
+								}
+							} else if (row!=0) {
+								if (board.gameBoard[row-1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col-1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row-1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col+1));
+									moves.add(move);
+								}
+							}
+						} else if (board.gameBoard[row][col].getRole()=='k') { //kings
+							if (col==3 && row==0) {
+								if (board.gameBoard[row+1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+									moves.add(move);
+								}
+							} else if (col==0 && row==3) {
+								if (board.gameBoard[row+1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+									moves.add(move);
+								}
+							} else if (row!=0 && row!=3 && col==0) {
+								if (board.gameBoard[row+1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row-1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col+1));
+									moves.add(move);
+								}
+							} else if (row!=0 && row!=3 && col==3) {
+								if (board.gameBoard[row+1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row-1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col-1));
+									moves.add(move);
+								}
+							} else if ((row>0&&row<3)&&(col>0&&col<3)) {
+								if (board.gameBoard[row+1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row-1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col+1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row+1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row-1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col-1));
+									moves.add(move);
+								}
+							} else if (row==3&&col==2) {
+								if (board.gameBoard[row-1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col+1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row-1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row-1, col-1));
+									moves.add(move);
+								}
+							} else if (row==0&&col==1) {
+								if (board.gameBoard[row+1][col+1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col+1));
+									moves.add(move);
+								}
+								if (board.gameBoard[row+1][col-1].isEmpty) {
+									String move = createMove(getInputfromPos(row, col), getInputfromPos(row+1, col-1));
+									moves.add(move);
+								}
+							}
+						}
+					}
+				} /*
+					 * else { //larger board 8x8 if (!board.gameBoard[row][col].isEmpty &&
+					 * board.gameBoard[row][col].getColor()==color) {
+					 * 
+					 * }
+					 * 
+					 * }
+					 */
+			}
+		}
+		
+		return moves;
+	}
+	
+	public static String makeAiMove(Board board) {
+		String move;
+		if (capturePossible(board, board.AIColor)) {
+			ArrayList<String> captures = getAICaptures(board, board.AIColor);
+			Random rand = new Random();
+			if (captures.size()-1==0) {
+				move = captures.get(0);
+				return move;
+			}
+			int index = rand.nextInt(captures.size()-1);
+			move = captures.get(index);
+			return move;
+		} else {
+			ArrayList<String> moves = getAiMoves(board);
+			Random rand = new Random();
+			if (moves.size()-1==0) {
+				move = moves.get(0);
+				return move;
+			}
+			int index = rand.nextInt(moves.size()-1);
+			move = moves.get(index);
+			return move;
+		}
+	}
+	
 	
 	public static void capturePiece (Board board, int[] srcpositions, int[] destpositions, char color) { //capturing pieces with regular pieces
 		System.out.println("Trying to capture...");
@@ -828,7 +1151,7 @@ public class Board {
 		return false;
 	}	
 	public static void main(String[] args) {
-		Board board = new Board(1);
+		Board board = new Board(1, 'b');
 		board.scale();
 		printArr(board.represent);
 
