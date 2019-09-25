@@ -22,7 +22,7 @@ public class AI {
 			movePlayed = alphaBeta(state);
 		}
 		if(algo == 4) {
-			movePlayed == hminiMax
+			movePlayed == hminiMax;
 		}
 	}
 	public void setBoard(Board state) {
@@ -307,15 +307,15 @@ public class AI {
 
 	}
 	public int hminValue(Board state, int depth) {
-		int i = 0;
-		while (i < depth) {
+
+		while (depth > 0) {
 			int v = Integer.MAX_VALUE;
 			for(Piece[] row: state.gameBoard) {
 				for(Piece piece: row) {
 					if(piece.color == 'b') {
 						for(String moves: piece.avalMoves) {
 							Board result = state.futureState(moves, state);
-							v = Math.min(v, hmaxValue(result, i+1));
+							v = Math.min(v, hmaxValue(result, depth - 1));
 						}
 					}
 				}
@@ -324,16 +324,15 @@ public class AI {
 
 		return v;
 	}
-	public int hminValue(Board state, int depth) {
-		int i = 0;
-		while (i < depth) {
+	public int hmaxValue(Board state, int depth) {
+		while (depth > 0) {
 			int v = Integer.MAX_VALUE;
 			for(Piece[] row: state.gameBoard) {
 				for(Piece piece: row) {
 					if(piece.color == 'b') {
 						for(String moves: piece.avalMoves) {
 							Board result = state.futureState(moves, state);
-							v = Math.min(v, hminValue(result, i));
+							v = Math.min(v, hminValue(result, depth - 1));
 						}
 					}
 				}
